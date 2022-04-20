@@ -1,0 +1,19 @@
+{% extends 'protocolo/base.html' %}
+
+{% block main %}
+<h4>Dimensões:</h4>
+{% for dimension in dimensions %}
+<a class="btn btn-info btn-block text-left"
+   href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}">
+    {{dimension.order}}. {{ dimension.name }}
+</a>
+{% empty %}
+<p>
+    Não existem dimensões implementadas.
+</p>
+{% endfor %}
+
+<a class="btn btn-warning btn-sm" href="{% url 'instruments' protocol.id part.id area.id %}" style="margin-top: 30px">
+    Voltar atrás
+</a>
+{% endblock %}

@@ -1,0 +1,39 @@
+.item {
+    flex: 1 1 0px;
+}
+
+.btn {
+    padding: 0px 10px 0px 10px;
+}
+
+.white-border {
+    outline: .5px solid rgba(255, 255, 255, 0.30);
+}
+
+.progress {
+    width: 75%;
+    min-width: 50%;
+    max-height: 10px;
+    min-height: 10px;
+}
+
+.jumbotron {
+    margin-bottom: .5rem;
+}
+
+.breadcrumb {
+    margin-bottom: 1rem;
+}
+
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+}
+
+.btn-warning {
+    color: #fff;
+}
+
+.btn-warning:hover {
+    color: #fff;
+}

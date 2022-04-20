@@ -1,0 +1,35 @@
+{% extends 'protocolo/base.html' %}
+
+{% block main %}
+    <h4>Áreas de Avaliação: </h4>
+    {% for area,answered,percentage in areas %}
+        <a class="btn btn-info btn-block text-left" href="{% url 'instruments' protocol.id part.id area.id %}">
+            <div class="d-flex flex-row">
+                <div class="p-1 item">{{ area.order }}. {{ area.name }}</div>
+                <div class="p-1 item align-self-center">
+                    {% if percentage > 0 %}
+                    <div class="progress white-border">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: {{ percentage }}%"
+                             aria-valuenow="{{ num_answered }}"
+                             aria-valuemin="0"
+                             aria-valuemax="{{ area.number_of_questions }}">
+                            {{ percentage }}%
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+
+
+    {% empty %}
+        <p>
+            Não existem áreas implementadas.
+        </p>
+    {% endfor %}
+
+    <a class="btn btn-warning btn-sm" href="{% url 'parts' protocol.id %}" style="margin-top: 30px">
+        Voltar atrás
+    </a>
+{% endblock %}

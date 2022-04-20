@@ -1,0 +1,21 @@
+{% extends 'protocolo/base.html' %}
+
+{% block main %}
+<h6>{{protocol}} \ {{ area }}</h6>
+<br>
+<h4>Testes:</h4>
+{% for test in tests %}
+<a class="btn btn-info btn-block text-left" href="{% url 'dimensions' protocol.id test.id %}">
+    {{test.order}}. {{ test }}
+</a>
+{% empty %}
+<p>
+    Não existem testes implementados.
+</p>
+{% endfor %}
+
+<a class="btn btn-warning btn-sm btn-block text-left" href="{% url 'areas' protocol.id %}" style="margin: 30px 10px;">
+    Outras áreas do protocolo "{{protocol}}"
+</a>
+
+{% endblock %}
