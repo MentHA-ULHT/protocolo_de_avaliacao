@@ -6,8 +6,8 @@
         <a class="btn btn-info btn-block text-left" href="{% url 'dimensions' protocol.id part.id area.id instrument.id %}">
 
             <div class="d-flex flex-row">
-                <div class="p-1 item">{{ instrument.order }}. {{ instrument.name }}</div>
-                <div class="p-1 item align-self-center">
+                <div class="p-button item">{{ instrument.order }}. {{ instrument.name }}</div>
+                <div class="p-button item align-self-center">
                     {% if percentage > 0 %}
                         <div class="progress white-border">
                             <div class="progress-bar bg-success" role="progressbar"

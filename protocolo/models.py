@@ -83,7 +83,7 @@ class Area(Common):
 
 
 class Instrument(Common):
-    area = models.ForeignKey('Area', on_delete=models.CASCADE)
+    area = models.ForeignKey('Area', on_delete=models.CASCADE, related_name='instruments')
 
     def __str__(self):
         return f"{self.area.name} >> {self.name}"
@@ -148,6 +148,8 @@ class Question(Common):
                                               default=None,
                                               related_name='possible_answers',
                                               blank=True)
+    quotation_max = models.IntegerField(default=0)
+    quotation_min = models.IntegerField(default=1)
 
     @property
     def allow_submission(self):
@@ -167,7 +169,7 @@ class QuestionImage(models.Model):
 
 
 class PossibleAnswer(Common):
-    points = models.IntegerField(default=0)
+    quotation = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.name}"
@@ -178,9 +180,11 @@ class Answer(models.Model):
                                  on_delete=models.CASCADE)
     multiple_choice_answer = models.ForeignKey('PossibleAnswer',
                                                on_delete=models.CASCADE,
-                                               unique=False)
+                                               unique=False,
+                                               blank= True)
     submitted_answer = models.ImageField
-    text_answer = models.TextField(max_length=LONG_LEN)
+    text_answer = models.TextField(max_length=LONG_LEN, blank=True)
+    quotation = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.question.name} >> {self.multiple_choice_answer.name}"
@@ -196,7 +200,31 @@ class Resolution(models.Model):
                                      blank=True)
     date = models.DateTimeField(default=timezone.now)
 
+    #statistics = models.JSONField(encoder='utf-8')  # verifica se enconder garante q tens ç, é, etc...
+
     def __str__(self):
         name = " ".join([self.patient.first_name, self.patient.last_name])
         return f"{name} - {self.part.name} " \
                f"({self.date.day}/{self.date.month}/{self.date.year}, {self.date.hour}:{self.date.minute})"
+
+    #def __int__(self):
+     #   self.estatisticas = {}
+      #  self.estatisticas['answered'] = 0
+        # parte.areas is a QuerySet of objects
+       # for area in parte.areas:
+        #    self.estatisticas[area.id] = {}
+         #   self.estatisticas[area.id]['answered'] = 0
+          #  for dimension in area.dimension_set:
+           #     self.estatisticas[area][dimensao] = {}
+            #    self.estatisticas[dimensao]['answered'] = 0
+             #   for instrumento in dimensao.instrumentos:
+              #      self.estatisticas[area][dimensao] = {}
+               #     self.estatisticas[area][dimensao][instrumento]['answered'] = 0
+                #    for seccao in instrumento.seccoes:
+                 #       self.estatisticas[area][dimensao][instrumento][seccao] = {}
+                  #      self.estatisticas[area][dimensao][instrumento][seccao]['answered'] = 0
+                   #     for pergunta in seccao.perguntas:
+                    #        self.estatisticas[area][dimensao][instrumento][seccao][pergunta]['answered'] = 0
+        #self.save()
+
+

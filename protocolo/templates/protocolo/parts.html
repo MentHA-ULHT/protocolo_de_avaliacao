@@ -5,12 +5,12 @@
     {% for part,num_answered,percentage in parts %}
         <a class="btn btn-info btn-block text-left" href="{% url 'areas' protocol.id part.id %}">
         <div class="d-flex flex-row">
-          <div class="p-1 item">{% if part.part_number > 0 %}
+          <div class="p-button item">{% if part.part_number > 0 %}
                             Parte {{ part.part_number }}: {{ part.name }}
                         {% else %}
                             {{ part.name }}
                         {% endif %}</div>
-          <div class="p-1 item align-self-center">
+          <div class="p-button item align-self-center">
               {% if percentage > 0 %}
               <div class="progress white-border">
                         <div class="progress-bar bg-success" role="progressbar"

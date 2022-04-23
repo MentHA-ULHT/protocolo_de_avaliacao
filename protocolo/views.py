@@ -112,6 +112,17 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
 
     return render(request, 'protocolo/sections.html', context)
 
+def update_statistics (resolucao,protocol_id, part_id, area_id, instrument_id, dimension_id, section_id):
+    # chamada quando a pergunta é válida
+    resolucao = Protocol.objects.get(id=protocol_id).resolucao.convert_to_dic()
+
+    #resolucao.estatisticas['answered'] += 1
+    #resolucao.estatisticas[area]['answered'] += 1
+    #resolucao.estatisticas[dimensao]['answered'] += 1
+    #resolucao.estatisticas[area][dimensao][instrumento]['answered'] += 1
+    #resolucao.estatisticas[area][dimensao][instrumento][seccao]['answered'] += 1
+    #resolucao.estatisticas[area][dimensao][instrumento][seccao][pergunta]['answered'] += 1
+
 
 def question_view(request, protocol_id, part_id, area_id, instrument_id, dimension_id, section_id):
     protocol = Protocol.objects.get(pk=protocol_id)
