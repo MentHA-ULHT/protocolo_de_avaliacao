@@ -12,3 +12,8 @@ Depois:
 6. Faça login com as credenciais user:"superuser" pw:"super123"
 
 **Este protótipo ainda está muito incompleto**
+
+Video
+======
+O vídeo será do protótipo interativo, e não do funcional, visto que o protótipo funcional ainda está muito incompleto.
+![image alt text](https://example.com/link-to-image)
