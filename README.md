@@ -16,4 +16,4 @@ Depois:
 Video
 ======
 O vídeo será do protótipo interativo, e não do funcional, visto que o protótipo funcional ainda está muito incompleto.
-![image alt text](https://example.com/link-to-image)
+![image alt text](https://www.youtube.com/watch?v=IenOC0H-psU)
