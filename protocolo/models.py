@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from .functions import percentage
 
 # Create your models here.
 
@@ -181,7 +182,7 @@ class Answer(models.Model):
     multiple_choice_answer = models.ForeignKey('PossibleAnswer',
                                                on_delete=models.CASCADE,
                                                unique=False,
-                                               blank= True)
+                                               blank=True)
     submitted_answer = models.ImageField
     text_answer = models.TextField(max_length=LONG_LEN, blank=True)
     quotation = models.IntegerField(default=0)
@@ -200,31 +201,71 @@ class Resolution(models.Model):
                                      blank=True)
     date = models.DateTimeField(default=timezone.now)
 
-    #statistics = models.JSONField(encoder='utf-8')  # verifica se enconder garante q tens ç, é, etc...
+    statistics = models.JSONField(blank=True, default=dict)
 
     def __str__(self):
         name = " ".join([self.patient.first_name, self.patient.last_name])
         return f"{name} - {self.part.name} " \
                f"({self.date.day}/{self.date.month}/{self.date.year}, {self.date.hour}:{self.date.minute})"
 
-    #def __int__(self):
-     #   self.estatisticas = {}
-      #  self.estatisticas['answered'] = 0
-        # parte.areas is a QuerySet of objects
-       # for area in parte.areas:
-        #    self.estatisticas[area.id] = {}
-         #   self.estatisticas[area.id]['answered'] = 0
-          #  for dimension in area.dimension_set:
-           #     self.estatisticas[area][dimensao] = {}
-            #    self.estatisticas[dimensao]['answered'] = 0
-             #   for instrumento in dimensao.instrumentos:
-              #      self.estatisticas[area][dimensao] = {}
-               #     self.estatisticas[area][dimensao][instrumento]['answered'] = 0
-                #    for seccao in instrumento.seccoes:
-                 #       self.estatisticas[area][dimensao][instrumento][seccao] = {}
-                  #      self.estatisticas[area][dimensao][instrumento][seccao]['answered'] = 0
-                   #     for pergunta in seccao.perguntas:
-                    #        self.estatisticas[area][dimensao][instrumento][seccao][pergunta]['answered'] = 0
-        #self.save()
+    def initialize_statistics(self):
+        self.statistics['total_answered'] = 0
+        self.statistics['total_percentage'] = 0
+        areas = Area.objects.filter(part=self.part)
+        for area in areas:
+            self.statistics[area.id] = {}
+            self.statistics[area.id]['name'] = area.name
+            self.statistics[area.id]['answered'] = 0
+            self.statistics[area.id]['percentage'] = 0
+            instruments = Instrument.objects.filter(area=area)
+            for instrument in instruments:
+                self.statistics[area.id][instrument.id] = {}
+                self.statistics[area.id][instrument.id]['name'] = instrument.name
+                self.statistics[area.id][instrument.id]['answered'] = 0
+                self.statistics[area.id][instrument.id]['percentage'] = 0
+                dimensions = Dimension.objects.filter(instrument=instrument)
+                for dimension in dimensions:
+                    self.statistics[area.id][instrument.id][dimension.id] = {}
+                    self.statistics[area.id][instrument.id][dimension.id]['name'] = dimension.name
+                    self.statistics[area.id][instrument.id][dimension.id]['answered'] = 0
+                    self.statistics[area.id][instrument.id][dimension.id]['percentage'] = 0
+                    sections = Section.objects.filter(dimension=dimension)
+                    for section in sections:
+                        self.statistics[area.id][instrument.id][dimension.id][section.id] = {}
+                        self.statistics[area.id][instrument.id][dimension.id][section.id]['name'] = section.name
+                        self.statistics[area.id][instrument.id][dimension.id][section.id]['answered'] = 0
+                        self.statistics[area.id][instrument.id][dimension.id][section.id]['percentage'] = 0
+        self.save()
 
+    def increment_statistics(self, part_id: int, area_id: int, instrument_id: int, dimension_id: int, section_id: int):
+        part = Part.objects.get(pk=part_id)
+        self.statistics['total_answered'] += 1
+        self.statistics['total_percentage'] = percentage \
+            (total=part.number_of_questions,
+             partial=self.statistics['total_answered'])
 
+        area = Area.objects.get(pk=area_id)
+        self.statistics[area_id]['answered'] += 1
+        self.statistics[area_id]['percentage'] = \
+            percentage(total=area.number_of_questions,
+                       partial=self.statistics[area_id]['answered'])
+
+        instrument = Instrument.objects.get(pk=instrument_id)
+        self.statistics[area_id][instrument_id]['answered'] += 1
+        self.statistics[area_id][instrument_id]['percentage'] = \
+            percentage(total=instrument.number_of_questions,
+                       partial=self.statistics[area_id][instrument_id]['answered'])
+
+        dimension = Dimension.objects.get(pk=dimension_id)
+        self.statistics[area_id][instrument_id][dimension_id]['answered'] += 1
+        self.statistics[area_id][instrument_id][dimension_id]['percentage'] = \
+            percentage(total=dimension.number_of_questions,
+                       partial=self.statistics[area_id][instrument_id][dimension_id]['answered'])
+
+        section = Section.objects.get(pk=section_id)
+        self.statistics[area_id][instrument_id][dimension_id][section_id]['answered'] += 1
+        self.statistics[area_id][instrument_id][dimension_id][section_id]['percentage'] = \
+            percentage(total=section.number_of_questions,
+                       partial=self.statistics[area_id][instrument_id][dimension_id][section_id]['answered'])
+
+        self.save()

@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .models import Protocol, Part, Area, Instrument, Dimension, Section, Question, Resolution, Answer, PossibleAnswer
+from .functions import *
 
 
 # Create your views here.
@@ -13,13 +14,23 @@ def parts_view(request, protocol_id):
     resolutions = Resolution.objects.filter(patient=request.user)  # Mudar request.user para o patient depois
     parts = Part.objects.filter(protocol=protocol_id).order_by('order')
 
-    # Variaveis e calculos para o progresso
-    nr_answered = get_answered_questions_per_part(parts, request.user)  # lista com o nr de perguntas respondidas
-    print(nr_answered)
-    percentage = get_percentage(parts, nr_answered)
+    # statistics
+    answered_list = []
+    percentage_list = []
+    for part in parts:
+        resolution = resolutions.filter(part=part)
+        if not resolution:
+            answered_list.append(0)
+            percentage_list.append(0)
+        else:
+            s = resolution.get().statistics
+            answered_list.append(s.get('total_answered'))
+            percentage_list.append(s.get('total_percentage'))
+    #print(answered_list)
+    #print(percentage_list)
 
     context = {
-        'parts': zip(parts, nr_answered, percentage),
+        'parts': zip(parts,answered_list,percentage_list),
         'protocol': protocol,
         'resolutions': resolutions,
     }
@@ -28,9 +39,15 @@ def parts_view(request, protocol_id):
 
 def areas_view(request, protocol_id, part_id):
     # ESTOU A CRIAR A RESOLUÇAO AQUI, MAS DEPOIS MUDAR DE SITIO
-    r = Resolution(patient=request.user, part=Part.objects.get(pk=part_id))
-    if r is None:
+    current_resolution = Resolution(patient=request.user, part=Part.objects.get(pk=part_id))
+    existing_resolution = Resolution.objects.filter(patient=request.user, part=Part.objects.get(pk=part_id))
+    r = None
+    if not existing_resolution:
+        r = current_resolution
+        r.initialize_statistics()
         r.save()
+    else:
+        r = existing_resolution.get()
 
     # Areas de Avaliaçao = Dimensões
     protocol = Protocol.objects.get(pk=protocol_id)
@@ -38,12 +55,20 @@ def areas_view(request, protocol_id, part_id):
 
     areas = Area.objects.filter(part=part).order_by('order')
 
-    # Variaveis e calculos para o progresso
-    nr_answered = get_answered_questions_per_area(part, areas, request.user)
-    percentage = get_percentage(areas, nr_answered)
+    #statistics
+    #print_nested_dict(r.statistics, 0)
+    answered_list = []
+    percentage_list = []
+    s = r.statistics
+    for area in areas:
+        if s.get(f'{area.id}') is not None:
+            answered_list.append(s.get(f'{area.id}').get('answered'))
+            percentage_list.append(s.get(f'{area.id}').get('percentage'))
+    #print(answered_list)
+    #print(percentage_list)
 
     context = {
-        'areas': zip(areas, nr_answered, percentage),
+        'areas': zip(areas,answered_list,percentage_list),
         'part': part,
         'protocol': protocol,
     }
@@ -55,17 +80,28 @@ def instruments_view(request, protocol_id, part_id, area_id):
     part = Part.objects.get(pk=part_id)
     area = Area.objects.get(pk=area_id)
 
+
     instruments = Instrument.objects.filter(area=area_id).order_by('order')
 
-    # Variaveis e calculos para o progresso
-    nr_answered = get_answered_questions_per_instrument(part, instruments, request.user)
-    percentage = get_percentage(instruments, nr_answered)
+    # statistics
+    r = Resolution.objects.get(patient=request.user, part=part)
+    #print_nested_dict(r.statistics, 0)
+    answered_list = []
+    percentage_list = []
+    s = r.statistics
+    for instrument in instruments:
+        if s.get(f'{area.id}') is not None:
+            answered_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get('answered'))
+            percentage_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get('percentage'))
+    #print(answered_list)
+    #print(percentage_list)
+
 
     context = {
         'area': area,
         'part': part,
         'protocol': protocol,
-        'instruments': zip(instruments,nr_answered,percentage)
+        'instruments': zip(instruments,answered_list,percentage_list)
     }
 
     return render(request, 'protocolo/instruments.html', context)
@@ -79,12 +115,25 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id):
 
     dimensions = Dimension.objects.filter(instrument=instrument_id).order_by('order')
 
+    # statistics
+    r = Resolution.objects.get(patient=request.user, part=part)
+    #print_nested_dict(r.statistics, 0)
+    answered_list = []
+    percentage_list = []
+    s = r.statistics
+    for dimension in dimensions:
+        if s.get(f'{area.id}') is not None:
+            answered_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get('answered'))
+            percentage_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get('percentage'))
+    #print(answered_list)
+    #print(percentage_list)
+
     context = {
         'area': area,
         'part': part,
         'protocol': protocol,
         'instrument': instrument,
-        'dimensions': dimensions,
+        'dimensions': zip(dimensions,answered_list,percentage_list),
     }
     return render(request, 'protocolo/dimensions.html', context)
 
@@ -98,6 +147,19 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
 
     sections = Section.objects.filter(dimension=dimension_id).order_by('order')
 
+    # statistics
+    r = Resolution.objects.get(patient=request.user, part=part)
+    #print_nested_dict(r.statistics, 0)
+    answered_list = []
+    percentage_list = []
+    s = r.statistics
+    for section in sections:
+        if s.get(f'{area.id}') is not None:
+            answered_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get(f'{section.id}').get('answered'))
+            percentage_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get(f'{section.id}').get('percentage'))
+    #print(answered_list)
+    #print(percentage_list)
+
     if len(sections) == 1:
         return redirect(question_view)
 
@@ -107,21 +169,10 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'protocol': protocol,
         'instrument': instrument,
         'dimension': dimension,
-        'sections': sections,
+        'sections': zip(sections,answered_list,percentage_list),
     }
 
     return render(request, 'protocolo/sections.html', context)
-
-def update_statistics (resolucao,protocol_id, part_id, area_id, instrument_id, dimension_id, section_id):
-    # chamada quando a pergunta é válida
-    resolucao = Protocol.objects.get(id=protocol_id).resolucao.convert_to_dic()
-
-    #resolucao.estatisticas['answered'] += 1
-    #resolucao.estatisticas[area]['answered'] += 1
-    #resolucao.estatisticas[dimensao]['answered'] += 1
-    #resolucao.estatisticas[area][dimensao][instrumento]['answered'] += 1
-    #resolucao.estatisticas[area][dimensao][instrumento][seccao]['answered'] += 1
-    #resolucao.estatisticas[area][dimensao][instrumento][seccao][pergunta]['answered'] += 1
 
 
 def question_view(request, protocol_id, part_id, area_id, instrument_id, dimension_id, section_id):
@@ -174,6 +225,7 @@ def post_mcq_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             a = Answer(question=question,
                        multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer))
             a.save()
+            r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}')
             r.answers.add(a)
             r.save()
         else:
@@ -185,68 +237,7 @@ def post_mcq_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     return redirect('question', protocol_id, part_id, area_id, instrument_id, dimension_id, section_id)
 
 
-# Funções
-def get_answered_questions_per_part(parts, user):
-    nr_answered = []
-
-    for part in parts:
-        count = 0
-        resolutions = Resolution.objects.filter(part=part, patient=user)
-        for resolution in resolutions:
-            count = len(resolution.answers.all())
-        nr_answered.append(count)
-
-    return nr_answered
 
 
-def get_answered_questions_per_area(part, areas, user):
-    resolution = Resolution.objects.filter(part=part, patient=user)
-    nr_answered = []
-    for area in areas:
-        count = 0
-        instruments = Instrument.objects.filter(area=area)
-        for i in instruments:
-            dimensions = Dimension.objects.filter(instrument=i)
-            for d in dimensions:
-                sections = Section.objects.filter(dimension=d)
-                for s in sections:
-                    questions = Question.objects.filter(section=s)
-                    for q in questions:
-                        for r in resolution:
-                            for a in r.answers.all():
-                                if a.question == q:
-                                    count += 1
-        nr_answered.append(count)
-
-    return nr_answered
 
 
-def get_answered_questions_per_instrument(part, instruments, user):
-    resolution = Resolution.objects.filter(part=part, patient=user)
-    nr_answered = []
-    for i in instruments:
-        count = 0
-        dimensions = Dimension.objects.filter(instrument=i)
-        for d in dimensions:
-            sections = Section.objects.filter(dimension=d)
-            for s in sections:
-                questions = Question.objects.filter(section=s)
-                for q in questions:
-                    for r in resolution:
-                        for a in r.answers.all():
-                            if a.question == q:
-                                count += 1
-        nr_answered.append(count)
-
-    return nr_answered
-
-
-def get_percentage(obj_list, nr_answered):
-    percentage = []
-    for n, obj in enumerate(obj_list):
-        p = 0
-        if (n <= len(nr_answered)):
-            if nr_answered[n] > 0 and obj.number_of_questions > 0:
-                p = (nr_answered[n] / obj.number_of_questions) * 100
-        percentage.append(int(p))
-    return percentage

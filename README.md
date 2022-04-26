@@ -1,9 +1,11 @@
 # protocolo_de_avaliacao
+
+Requisitios
+======
+1. Python 3.9 ou superior
+
 Deployment
 ======
-Para correr este protótipo é necessário ter o python instalado no sistema.
-
-Depois:
 1. Abrir o cmd
 2. Fazer cd para o directorio onde está o manage.py
 3. Correr o comando "py manage.py runserver"
