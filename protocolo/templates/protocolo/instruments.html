@@ -1,6 +1,7 @@
+{% include 'protocolo/tree.html'%}
 <h4>Instrumentos</h4>
 {% for instrument,answered,percentage in instruments %}
-    <a class="btn btn-info btn-block text-left"
+    <a class="btn jq-btn btn-info btn-block text-left"
        data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id %}">
 
         <div class="d-flex flex-row">
@@ -28,6 +29,6 @@
     </p>
 {% endfor %}
 
-<a class="btn btn-warning btn-sm" data-href="{% url 'areas' protocol.id part.id %}" style="margin-top: 30px">
+<a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'areas' protocol.id part.id %}" style="margin-top: 30px">
     Voltar atrás
 </a>

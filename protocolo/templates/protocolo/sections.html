@@ -1,6 +1,7 @@
+{% include 'protocolo/tree.html'%}
 <h4>Secções:</h4>
 {% for section,answered,percentage in sections %}
-    <a class="btn btn-info btn-block text-left"
+    <a class="btn jq-btn btn-info btn-block text-left"
        data-href=" {% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id %}">
         <div class="d-flex flex-row">
             <div class="p-button item">{{ section.order }}. {{ section.name }} </div>
@@ -27,7 +28,7 @@
     </p>
 {% endfor %}
 
-<a class="btn btn-warning btn-sm" data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id %}"
+<a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id %}"
    style="margin-top: 30px">
     Voltar atrás
 </a>

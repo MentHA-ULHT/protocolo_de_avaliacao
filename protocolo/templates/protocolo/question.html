@@ -1,4 +1,5 @@
- <h4>{{ question.name }}</h4>
+{% include 'protocolo/tree.html'%}
+<h4>{{ question.name }}</h4>
     {% if question.description is not None %}
         <h8>{{ question.description | linebreaks }}</h8>
     {% endif %}
@@ -13,7 +14,7 @@
     {% endif %}
 
     <br>
-    <a class="btn btn-warning btn-sm" data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}"
+    <a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}"
        style="margin-top: 30px">
         Voltar atrás
     </a>

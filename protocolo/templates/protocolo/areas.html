@@ -1,6 +1,7 @@
- <h4>Áreas de Avaliação: </h4>
+{% include 'protocolo/tree.html'%}
+<h4>Áreas de Avaliação: </h4>
     {% for area,answered,percentage in areas %}
-        <a class="btn btn-info btn-block text-left" data-href="{% url 'instruments' protocol.id part.id area.id %}">
+        <a class="btn jq-btn btn-info btn-block text-left" data-href="{% url 'instruments' protocol.id part.id area.id %}">
             <div class="d-flex flex-row">
                 <div class="p-button item">{{ area.order }}. {{ area.name }}  </div>
                 <div class="p-button item align-self-center">
@@ -27,6 +28,6 @@
         </p>
     {% endfor %}
 
-    <a class="btn btn-warning btn-sm" data-href="{% url 'parts' protocol.id %}" style="margin-top: 30px">
+    <a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'parts' protocol.id %}" style="margin-top: 30px">
         Voltar atrás
     </a>

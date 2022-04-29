@@ -1,7 +1,6 @@
 console.log("jquery.js loaded")
 $(document).ready(function (){
-    $(document).on("click",".btn",function (){
-            var id = $(this).attr("id"); //Não é usado para nada, por agora
+    $("jq-btn").click(function (){
             var href = $(this).attr("data-href");
             const csrf_token = Cookies.get('csrftoken');
        $.ajax({

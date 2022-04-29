@@ -1,7 +1,7 @@
-
+{% include 'protocolo/tree.html'%}
     <h4>Dimensões:</h4>
     {% for dimension,answered,percentage in dimensions %}
-        <a class="btn btn-info btn-block text-left"
+        <a class="btn jq-btn  btn-info btn-block text-left"
            data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}">
             <div class="d-flex flex-row">
                 <div class="p-button item">{{ dimension.order }}. {{ dimension.name }}  </div>
@@ -28,7 +28,7 @@
         </p>
     {% endfor %}
 
-    <a class="btn btn-warning btn-sm" data-href="{% url 'instruments' protocol.id part.id area.id %}"
+    <a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'instruments' protocol.id part.id area.id %}"
        style="margin-top: 30px">
         Voltar atrás
     </a>

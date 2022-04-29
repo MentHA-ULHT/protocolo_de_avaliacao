@@ -25,16 +25,7 @@
 {% csrf_token %}
 </head>
 <body>
-<header class="jumbotron text-center" style="padding: 10px">
-    <h1>Protocolo MentHA</h1>
-
-    <p>Mental Health and Aging</p>
-
-</header>
 <main class="container">
-    {% if protocol is not None %}
-    {% include 'protocolo/tree.html'%}
-    {% endif %}
     {% block main %}{% endblock%}
 </main>
 </body>
