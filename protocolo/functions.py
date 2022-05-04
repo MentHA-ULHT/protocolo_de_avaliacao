@@ -1,12 +1,13 @@
 # Funções
 
-def percentage(total: int, partial:int):
+def percentage(total: int, partial: int):
     '''
     Gets percentage from a total and partial number
     Does (partial/total)*100
     '''
 
-    return int((partial/total)*100)
+    return int((partial / total) * 100)
+
 
 def create_percentage_list(obj_list, nr_answered):
     '''Returns a list of percentages, given a list of objects'''
@@ -16,7 +17,7 @@ def create_percentage_list(obj_list, nr_answered):
         p = 0
         if (n <= len(nr_answered)):
             if nr_answered[n] > 0 and obj.number_of_questions > 0:
-                p = percentage(partial=nr_answered[n],total=obj.number_of_questions)
+                p = percentage(partial=nr_answered[n], total=obj.number_of_questions)
         percentage.append(int(p))
     return percentage
 
@@ -33,3 +34,5 @@ def print_nested_dict(dict_obj, indent=0):
             print(' ' * indent, '}')
         else:
             print(' ' * indent, key, ':', value)
+
+

@@ -1,5 +1,7 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse, redirect
 from .models import Protocol, Part, Area, Instrument, Dimension, Section, Question, Resolution, Answer, PossibleAnswer
+from django.urls import reverse
 from .functions import *
 
 
@@ -26,11 +28,11 @@ def parts_view(request, protocol_id):
             s = resolution.get().statistics
             answered_list.append(s.get('total_answered'))
             percentage_list.append(s.get('total_percentage'))
-    #print(answered_list)
-    #print(percentage_list)
+    # print(answered_list)
+    # print(percentage_list)
 
     context = {
-        'parts': zip(parts,answered_list,percentage_list),
+        'parts': zip(parts, answered_list, percentage_list),
         'protocol': protocol,
         'resolutions': resolutions,
     }
@@ -55,8 +57,8 @@ def areas_view(request, protocol_id, part_id):
 
     areas = Area.objects.filter(part=part).order_by('order')
 
-    #statistics
-    #print_nested_dict(r.statistics, 0)
+    # statistics
+    # print_nested_dict(r.statistics, 0)
     answered_list = []
     percentage_list = []
     s = r.statistics
@@ -64,11 +66,11 @@ def areas_view(request, protocol_id, part_id):
         if s.get(f'{area.id}') is not None:
             answered_list.append(s.get(f'{area.id}').get('answered'))
             percentage_list.append(s.get(f'{area.id}').get('percentage'))
-    #print(answered_list)
-    #print(percentage_list)
+    # print(answered_list)
+    # print(percentage_list)
 
     context = {
-        'areas': zip(areas,answered_list,percentage_list),
+        'areas': zip(areas, answered_list, percentage_list),
         'part': part,
         'protocol': protocol,
     }
@@ -80,12 +82,11 @@ def instruments_view(request, protocol_id, part_id, area_id):
     part = Part.objects.get(pk=part_id)
     area = Area.objects.get(pk=area_id)
 
-
     instruments = Instrument.objects.filter(area=area_id).order_by('order')
 
     # statistics
     r = Resolution.objects.get(patient=request.user, part=part)
-    #print_nested_dict(r.statistics, 0)
+    # print_nested_dict(r.statistics, 0)
     answered_list = []
     percentage_list = []
     s = r.statistics
@@ -93,15 +94,14 @@ def instruments_view(request, protocol_id, part_id, area_id):
         if s.get(f'{area.id}') is not None:
             answered_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get('answered'))
             percentage_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get('percentage'))
-    #print(answered_list)
-    #print(percentage_list)
-
+    # print(answered_list)
+    # print(percentage_list)
 
     context = {
         'area': area,
         'part': part,
         'protocol': protocol,
-        'instruments': zip(instruments,answered_list,percentage_list)
+        'instruments': zip(instruments, answered_list, percentage_list)
     }
 
     return render(request, 'protocolo/instruments.html', context)
@@ -117,7 +117,7 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id):
 
     # statistics
     r = Resolution.objects.get(patient=request.user, part=part)
-    #print_nested_dict(r.statistics, 0)
+    # print_nested_dict(r.statistics, 0)
     answered_list = []
     percentage_list = []
     s = r.statistics
@@ -125,15 +125,15 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id):
         if s.get(f'{area.id}') is not None:
             answered_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get('answered'))
             percentage_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get('percentage'))
-    #print(answered_list)
-    #print(percentage_list)
+    # print(answered_list)
+    # print(percentage_list)
 
     context = {
         'area': area,
         'part': part,
         'protocol': protocol,
         'instrument': instrument,
-        'dimensions': zip(dimensions,answered_list,percentage_list),
+        'dimensions': zip(dimensions, answered_list, percentage_list),
     }
     return render(request, 'protocolo/dimensions.html', context)
 
@@ -149,16 +149,19 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
 
     # statistics
     r = Resolution.objects.get(patient=request.user, part=part)
-    #print_nested_dict(r.statistics, 0)
+    # print_nested_dict(r.statistics, 0)
     answered_list = []
     percentage_list = []
     s = r.statistics
     for section in sections:
         if s.get(f'{area.id}') is not None:
-            answered_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get(f'{section.id}').get('answered'))
-            percentage_list.append(s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get(f'{section.id}').get('percentage'))
-    #print(answered_list)
-    #print(percentage_list)
+            answered_list.append(
+                s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get(f'{section.id}').get('answered'))
+            percentage_list.append(
+                s.get(f'{area.id}').get(f'{instrument.id}').get(f'{dimension.id}').get(f'{section.id}').get(
+                    'percentage'))
+    # print(answered_list)
+    # print(percentage_list)
 
     if len(sections) == 1:
         return redirect(question_view)
@@ -169,7 +172,7 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'protocol': protocol,
         'instrument': instrument,
         'dimension': dimension,
-        'sections': zip(sections,answered_list,percentage_list),
+        'sections': zip(sections, answered_list, percentage_list),
     }
 
     return render(request, 'protocolo/sections.html', context)
@@ -200,44 +203,34 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             existing_answer_id = answer.multiple_choice_answer.id
             context['existing_answer_id'] = existing_answer_id
 
+            if request.method == 'POST':
+                id_answer = request.POST.get("choice")
+                print(request.POST)
+                print(id_answer)
+                r = Resolution.objects.get(part=part,
+                                           patient=request.user)
+
+                for answer in r.answers.all():
+                    if answer.question == question:
+                        existing_answer = answer
+                        break
+
+                if existing_answer is None:
+                    # cria uma nova associação
+                    a = Answer(question=question,
+                               multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer))
+                    a.save()
+                    r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                           f'{section_id}')
+                    r.answers.add(a)
+                    r.save()
+                else:
+                    # modifica a associação existente
+                    existing_answer.multiple_choice_answer = PossibleAnswer.objects.get(pk=id_answer)
+                    existing_answer.save()
+                return redirect('sections',
+                                       protocol_id=protocol_id, part_id=part_id,
+                                       area_id=area_id, instrument_id=instrument_id,
+                                       dimension_id=dimension_id)
+
     return render(request, 'protocolo/question.html', context)
-
-
-def post_mcq_view(request, protocol_id, part_id, area_id, instrument_id, dimension_id, section_id, question_id):
-    part = Part.objects.get(pk=part_id)
-    question = Question.objects.get(pk=question_id)
-    user = request.user
-    existing_answer = None
-
-    if request.method == "POST":
-        id_answer = request.POST.get("choice")
-
-        r = Resolution.objects.get(part=part,
-                                   patient=user)
-
-        for answer in r.answers.all():
-            if answer.question == question:
-                existing_answer = answer
-                break
-
-        if existing_answer is None:
-            # cria uma nova associação
-            a = Answer(question=question,
-                       multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer))
-            a.save()
-            r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}')
-            r.answers.add(a)
-            r.save()
-        else:
-            # modifica a associação existente
-            existing_answer.multiple_choice_answer = PossibleAnswer.objects.get(pk=id_answer)
-            existing_answer.save()
-
-    # talvez dar redirect para a página anterior (sections)
-    return redirect('question', protocol_id, part_id, area_id, instrument_id, dimension_id, section_id)
-
-
-
-
-
-

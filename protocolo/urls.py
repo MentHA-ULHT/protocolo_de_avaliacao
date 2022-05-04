@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-
+# app_name = "protocolo"
 
 urlpatterns = [
     path('', views.protocolos_view, name="protocols"),
@@ -17,6 +17,4 @@ urlpatterns = [
          views.sections_view, name="sections"),
     path('question/<int:protocol_id>/<int:part_id>/<int:area_id>/<int:instrument_id>/<int:dimension_id>/<int:section_id>',
          views.question_view, name="question"),
-    path('question/<int:protocol_id>/<int:part_id>/<int:area_id>/<int:instrument_id>/<int:dimension_id>/<int:section_id>/<int:question_id>',
-         views.post_mcq_view, name="post_mcq"),
 ]

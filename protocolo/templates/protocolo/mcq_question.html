@@ -1,7 +1,7 @@
-<form action="{% url 'post_mcq' protocol.id part.id area.id instrument.id dimension.id section.id question.id %}" method="post">
+<form id="question-form" action="" method="post">
     {% csrf_token %}
     {% for answer in question.possible_answers.all %}
-    <input id="{{answer.name}}" name="choice" type="radio" value="{{answer.id}}"
+    <input id="{{answer.id}}" name="choice" type="radio" value="{{answer.id}}"
     {% if answer.id == existing_answer_id %}
            checked="checked"
            {% endif %}
@@ -9,5 +9,5 @@
     <label for="{{answer.name}}">{{answer.name}}</label>
     <br>
     {% endfor %}
-    <input class="btn btn-primary" type="submit" value="OK">
+    <input class="btn btn-primary btn-submit" data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id%}" type="submit" value="OK">
 </form>
