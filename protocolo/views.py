@@ -3,6 +3,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from .models import Protocol, Part, Area, Instrument, Dimension, Section, Question, Resolution, Answer, PossibleAnswer
 from django.urls import reverse
 from .functions import *
+from .forms import *
 
 
 # Create your views here.
@@ -187,6 +188,9 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     section = Section.objects.get(pk=section_id)
     question = Question.objects.get(section=section.id)
     r = Resolution.objects.get(patient=request.user, part=part)
+    a = Answer.objects.filter(resolution=r)
+
+    form = uploadAnswerForm
 
     context = {
         'area': area,
@@ -196,41 +200,44 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'dimension': dimension,
         'section': section,
         'question': question,
+        'form': form,
     }
 
-    for answer in r.answers.all():
-        if answer.question == question:
-            existing_answer_id = answer.multiple_choice_answer.id
-            context['existing_answer_id'] = existing_answer_id
+    for answer in a:
+        if answer.resolution == r:
+            if answer.question == question:
+                existing_answer_id = answer.multiple_choice_answer.id
+                context['existing_answer_id'] = existing_answer_id
 
-            if request.method == 'POST':
-                id_answer = request.POST.get("choice")
-                print(request.POST)
-                print(id_answer)
-                r = Resolution.objects.get(part=part,
-                                           patient=request.user)
+    if request.method == 'POST':
+        id_answer = request.POST.get("choice")
+        print(request.POST)
+        print(id_answer)
+        r = Resolution.objects.get(part=part,
+                                   patient=request.user)
 
-                for answer in r.answers.all():
-                    if answer.question == question:
-                        existing_answer = answer
-                        break
+        for answer in a:
+            if answer.question == question:
+                existing_answer = answer
+                break
 
-                if existing_answer is None:
-                    # cria uma nova associação
-                    a = Answer(question=question,
-                               multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer))
-                    a.save()
-                    r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                           f'{section_id}')
-                    r.answers.add(a)
-                    r.save()
-                else:
-                    # modifica a associação existente
-                    existing_answer.multiple_choice_answer = PossibleAnswer.objects.get(pk=id_answer)
-                    existing_answer.save()
-                return redirect('sections',
-                                       protocol_id=protocol_id, part_id=part_id,
-                                       area_id=area_id, instrument_id=instrument_id,
-                                       dimension_id=dimension_id)
+        if existing_answer is None:
+            # cria uma nova associação
+            a = Answer(question=question,
+                       multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer))
+            a.save()
+            r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                   f'{section_id}')
+            r.answers.add(a)
+            r.save()
+        else:
+            # modifica a associação existente
+            existing_answer.multiple_choice_answer = PossibleAnswer.objects.get(pk=id_answer)
+            existing_answer.save()
+        # quando guarda a pergunta volta às secções
+        return redirect('sections',
+                        protocol_id=protocol_id, part_id=part_id,
+                        area_id=area_id, instrument_id=instrument_id,
+                        dimension_id=dimension_id)
 
     return render(request, 'protocolo/question.html', context)

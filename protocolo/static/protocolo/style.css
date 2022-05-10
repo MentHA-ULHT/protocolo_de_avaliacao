@@ -2,8 +2,72 @@
     flex: 1 1 0px;
 }
 
-.p-button{
-    padding: 0px!important;
+.padding-top-25 {
+    padding-top: 25px;
+}
+
+.img-preview {
+    border: 1px solid #ddd; /* Gray border */
+    border-radius: 4px; /* Rounded border */
+    padding: 5px; /* Some padding */
+    max-width: 150px; /* Set a small width */
+    max-height: 150px;
+}
+
+/* Add a hover effect (blue shadow) */
+.img-preview:hover {
+    box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.flex-buttons {
+    display: flex;
+    flex-display: row;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    align-content: stretch;
+    justify-content: flex-start;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.flex-right {
+    justify-content: right;
+}
+
+.flex-left {
+    flex-grow: 1;
+    justify-content: left;
+}
+
+
+.flex-textarea {
+    flex-shrink: 0;
+
+}
+
+.flex-item {
+
+}
+
+.btn-warning {
+    color: white;
+    background-color: #ffaf00;
+    border-color: #E1CA63;
+}
+
+.notes-area {
+    width: 100%;
+    height: 100%;
+}
+
+.p-button {
+    padding: 0px !important;
 }
 
 .white-border {
@@ -28,12 +92,4 @@
 
 .breadcrumb-item + .breadcrumb-item::before {
     content: ">";
-}
-
-.btn-warning {
-    color: #fff;
-}
-
-.btn-warning:hover {
-    color: #fff;
 }

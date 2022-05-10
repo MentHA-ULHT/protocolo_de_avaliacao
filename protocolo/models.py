@@ -1,3 +1,5 @@
+import json
+
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
@@ -8,6 +10,8 @@ from .functions import percentage
 SMALL_LEN = 50
 MEDIUM_LEN = 150
 LONG_LEN = 500
+
+HELPING_IMAGES_DIR = "helping_images/"
 
 
 # É possivel criar um modelo "Common"
@@ -166,7 +170,12 @@ class QuestionImage(models.Model):
     name = models.CharField(max_length=MEDIUM_LEN)
     description = models.CharField(max_length=LONG_LEN,
                                    blank=True)
-    image = models.ImageField
+    image = models.ImageField(upload_to=HELPING_IMAGES_DIR,
+                              default=None,
+                              blank=True)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class PossibleAnswer(Common):
@@ -176,29 +185,10 @@ class PossibleAnswer(Common):
         return f"{self.name}"
 
 
-class Answer(models.Model):
-    question = models.ForeignKey('Question',
-                                 on_delete=models.CASCADE)
-    multiple_choice_answer = models.ForeignKey('PossibleAnswer',
-                                               on_delete=models.CASCADE,
-                                               unique=False,
-                                               blank=True)
-    submitted_answer = models.ImageField
-    text_answer = models.TextField(max_length=LONG_LEN, blank=True)
-    quotation = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.question.name} >> {self.multiple_choice_answer.name}"
-
-
 class Resolution(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL,  # estou a ir buscar isto à tabela user do django
                                 on_delete=models.CASCADE)
     part = models.ForeignKey('Part', on_delete=models.CASCADE)
-    answers = models.ManyToManyField('Answer',
-                                     default=None,
-                                     related_name='answers',
-                                     blank=True)
     date = models.DateTimeField(default=timezone.now)
 
     statistics = models.JSONField(blank=True, default=dict)
@@ -269,3 +259,36 @@ class Resolution(models.Model):
                        partial=self.statistics[area_id][instrument_id][dimension_id][section_id]['answered'])
 
         self.save()
+
+
+def resolution_path(instance, filename):
+    return f'users/{instance.resolution.patient.id}/resolutions/{instance.resolution.id}/{filename}'
+
+
+class Answer(models.Model):
+    question = models.ForeignKey('Question',
+                                 on_delete=models.CASCADE)
+    multiple_choice_answer = models.ForeignKey('PossibleAnswer',
+                                               on_delete=models.CASCADE,
+                                               unique=False,
+                                               blank=True)
+    text_answer = models.TextField(max_length=LONG_LEN, blank=True)
+    quotation = models.IntegerField(default=0, null=True, blank=True)
+    notes = models.TextField(max_length=LONG_LEN, blank=True, null=True)
+    resolution = models.ForeignKey('Resolution', on_delete=models.CASCADE)
+    submitted_answer = models.ImageField(upload_to=resolution_path)
+
+    @property
+    def quotation_max(self):
+        return self.question.quotation_max
+
+    @property
+    def quotation_min(self):
+        return self.question.quotation_min
+
+    @property
+    def quotation_range(self):
+        return [i for i in range(self.quotation_min, self.quotation_max + 1)]
+
+    def __str__(self):
+        return f"{self.question.name} >> {self.multiple_choice_answer.name}"

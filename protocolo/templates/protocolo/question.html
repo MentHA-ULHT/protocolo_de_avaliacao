@@ -1,20 +1,26 @@
-{% include 'protocolo/tree.html'%}
-<h4>{{ question.name }}</h4>
-    {% if question.description is not None %}
+{% include 'protocolo/tree.html' %}
+<div class="question-container">
+    <h4>{{ question.name }}</h4>
+    {% if question.description %}
         <h8>{{ question.description | linebreaks }}</h8>
     {% endif %}
-    {% if question.instruction is not None %}
-        <h6><b>Instrução:</b> {{ question.instruction | linebreaks }}</h6>
+    {% if question.instruction %}
+        <h6><b>Instrução:</b> {{ question.instruction }}</h6>
     {% endif %}
 
-    {% if question.possible_answers.all  %}
+    {% if question.helping_images %}
+        <h6><b>Imagens:</b></h6>
+        {% for image in question.helping_images.all %}
+            <a target="_blank" href="{{ image.image.url }}">
+                <img class="img-preview" src="{{ image.image.url }}">
+            </a>
+        {% endfor %}
+    {% endif %}
+
+    {% if question.possible_answers.all %}
         {% include 'protocolo/mcq_question.html' %}
     {% else %}
         {% include 'protocolo/upl_question.html' %}
     {% endif %}
-
     <br>
-    <a class="btn jq-btn btn-warning btn-sm" data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}"
-       style="margin-top: 30px">
-        Voltar atrás
-    </a>
+</div>

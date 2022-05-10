@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 # app_name = "protocolo"
 
@@ -17,4 +19,4 @@ urlpatterns = [
          views.sections_view, name="sections"),
     path('question/<int:protocol_id>/<int:part_id>/<int:area_id>/<int:instrument_id>/<int:dimension_id>/<int:section_id>',
          views.question_view, name="question"),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
