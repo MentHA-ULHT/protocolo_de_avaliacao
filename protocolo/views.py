@@ -190,7 +190,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     r = Resolution.objects.get(patient=request.user, part=part)
     a = Answer.objects.filter(resolution=r)
 
-    form = uploadAnswerForm
+    form = uploadAnswerForm(request.POST or None)
 
     context = {
         'area': area,
