@@ -271,24 +271,24 @@ class Answer(models.Model):
     multiple_choice_answer = models.ForeignKey('PossibleAnswer',
                                                on_delete=models.CASCADE,
                                                unique=False,
-                                               blank=True)
+                                               blank=True, null=True)
     text_answer = models.TextField(max_length=LONG_LEN, blank=True)
     quotation = models.IntegerField(default=0, null=True, blank=True)
     notes = models.TextField(max_length=LONG_LEN, blank=True, null=True)
     resolution = models.ForeignKey('Resolution', on_delete=models.CASCADE)
-    submitted_answer = models.ImageField(upload_to=resolution_path)
+    submitted_answer = models.ImageField(upload_to=resolution_path,blank=True, null=True)
 
     @property
     def quotation_max(self):
-        return self.question.quotation_max
+        return int(self.question.quotation_max)
 
     @property
     def quotation_min(self):
-        return self.question.quotation_min
+        return int(self.question.quotation_min)
 
     @property
     def quotation_range(self):
         return [i for i in range(self.quotation_min, self.quotation_max + 1)]
 
-    def __str__(self):
-        return f"{self.question.name} >> {self.multiple_choice_answer.name}"
+    #def __str__(self):
+        #return f"{self.question.name} >> {self.multiple_choice_answer.name}"

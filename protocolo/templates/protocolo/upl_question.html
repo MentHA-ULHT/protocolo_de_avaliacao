@@ -1,17 +1,46 @@
-<form action = "" method = "post">
+<form class="flex-container padding-top-25" id="upl-form" action="" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="type" value="1">
     {% csrf_token %}
-    {{ form.as_p }}
-    <div class="flex-buttons">
-        <div class="flex-item flex-right">
-            <input class="btn btn-primary btn-sm btn-submit"
-                   data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id %}"
-                   type="submit" value="Submeter">
+    <div class="form-row row-md-12">
+        <div class="form-group col-md-10">
+            <label><b>{{ form.text_answer.label }}</b></label><br>
+            {{ form.text_answer }}
         </div>
-        <div class="flex-item flex-left">
-            <a class="btn jq-btn btn-warning btn-sm"
-               data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}">
-                Voltar atrás
-            </a>
+        <div class="form-group col-md-2">
+            <label><b> {{ form.quotation.label }}</b></label><br>
+            <input class="max-width form-control" type="number" step="1" name="quotation" max="{{question.quotation_max}}" min="{{ question.quotation_min}}">
+        </div>
+    </div>
+    <div class="form-row row-md-12">
+        <div class="col col-md-12 ">
+            <label><b>{{ form.submitted_answer.label }}</b></label><br>
+            {{ form.submitted_answer }}
+        </div>
+    </div>
+
+    <div class="form-row row-md-12 padding-top-25">
+        <div class="col col-md-12">
+            <div class="flex-textarea flex-item">
+                <b>{{ form.notes.label }}</b>
+                {{ form.notes }}
+                </textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-row row-md-12 ">
+        <div class="flex-buttons padding-top-25">
+            <div class="flex-item flex-right">
+                <input class="btn btn-primary btn-sm btn-submit-upl"
+                       data-href="{% url 'question' protocol.id part.id area.id instrument.id dimension.id section.id %}"
+                       type="submit" value="Submeter">
+            </div>
+            <div class="flex-item flex-left">
+                <a class="btn jq-btn btn-warning btn-sm"
+                   data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id %}">
+                    Voltar atrás
+                </a>
+            </div>
         </div>
     </div>
 </form>

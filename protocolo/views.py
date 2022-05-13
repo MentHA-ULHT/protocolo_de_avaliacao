@@ -202,42 +202,73 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'question': question,
         'form': form,
     }
-
+    print(a)
     for answer in a:
         if answer.resolution == r:
-            if answer.question == question:
+            if answer.question == question and answer.multiple_choice_answer is not None:
                 existing_answer_id = answer.multiple_choice_answer.id
                 context['existing_answer_id'] = existing_answer_id
 
     if request.method == 'POST':
-        id_answer = request.POST.get("choice")
-        print(request.POST)
-        print(id_answer)
-        r = Resolution.objects.get(part=part,
-                                   patient=request.user)
-
+        question_type = int(request.POST.get('type'))  # 0 -> Escolha Multipla \ 1 -> Resposta Escrita
+        print(question_type)
+        existing_answer = None
         for answer in a:
             if answer.question == question:
                 existing_answer = answer
-                break
 
-        if existing_answer is None:
-            # cria uma nova associação
-            a = Answer(question=question,
-                       multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer))
-            a.save()
-            r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}')
-            r.answers.add(a)
-            r.save()
-        else:
-            # modifica a associação existente
-            existing_answer.multiple_choice_answer = PossibleAnswer.objects.get(pk=id_answer)
-            existing_answer.save()
-        # quando guarda a pergunta volta às secções
-        return redirect('sections',
-                        protocol_id=protocol_id, part_id=part_id,
-                        area_id=area_id, instrument_id=instrument_id,
-                        dimension_id=dimension_id)
+        if question_type == 0:
+            print("Question Type: MCQ")
+            id_answer = request.POST.get("choice")
+            r = Resolution.objects.get(part=part,
+                                       patient=request.user)
+            if existing_answer is None:
+                # cria uma nova associação
+                a = Answer(question=question,
+                           multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer))
+                a.save()
+                r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                       f'{section_id}')
+                r.answers.add(a)
+                r.save()
+            else:
+                # modifica a associação existente
+                existing_answer.multiple_choice_answer = PossibleAnswer.objects.get(pk=id_answer)
+                existing_answer.save()
+            # quando guarda a pergunta volta às secções
+            return redirect('sections',
+                            protocol_id=protocol_id, part_id=part_id,
+                            area_id=area_id, instrument_id=instrument_id,
+                            dimension_id=dimension_id)
+        elif question_type == 1:
+            print("Question Type: UPL")
+            form = uploadAnswerForm(request.POST, files=request.FILES)
+            print(request.POST)
+            print(form.is_valid())
+            print(request.FILES)
+            if form.is_valid():
+                new_answer = Answer()
+                new_answer.submitted_answer = form.cleaned_data['submitted_answer']
+                new_answer.text_answer = form.cleaned_data['text_answer']
+                new_answer.quotation = form.cleaned_data['quotation']
+                new_answer.notes = form.cleaned_data['notes']
+                new_answer.question = question
+                new_answer.resolution = r
+                new_answer.save()
+                if existing_answer is None:
+                    # cria uma nova associação
+                    r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                           f'{section_id}')
+                    r.answers.add(new_answer)
+                    r.save()
+                else:
+                    # modifica a associação existente
+                    existing_answer = new_answer
+                    existing_answer.save()
+                # quando guarda a pergunta volta às secções
+                return redirect('sections',
+                                protocol_id=protocol_id, part_id=part_id,
+                                area_id=area_id, instrument_id=instrument_id,
+                                dimension_id=dimension_id)
 
     return render(request, 'protocolo/question.html', context)
