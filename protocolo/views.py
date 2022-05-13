@@ -210,8 +210,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 context['existing_answer_id'] = existing_answer_id
 
     if request.method == 'POST':
+        print(f"post: {request.POST}")
         question_type = int(request.POST.get('type'))  # 0 -> Escolha Multipla \ 1 -> Resposta Escrita
-        print(question_type)
         existing_answer = None
         for answer in a:
             if answer.question == question:
@@ -259,8 +259,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                     # cria uma nova associação
                     r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
                                            f'{section_id}')
-                    r.answers.add(new_answer)
-                    r.save()
+                    new_answer.resolution = r
+                    new_answer.save()
                 else:
                     # modifica a associação existente
                     existing_answer = new_answer

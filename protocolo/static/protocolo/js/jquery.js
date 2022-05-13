@@ -41,18 +41,21 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".btn-submit-upl", function () {
-        //event.preventDefault();
+        event.preventDefault();
+        var form = $("#upl-form");
+        var form_data = new FormData(form[0]);
         var href = $(this).attr("data-href");
         const csrf_token = Cookies.get('csrftoken');
-        var post_data = $("#upl-form").serialize();
+
+        console.log(form_data);
         $.ajax({
             method: 'POST',
             url: href,
-            data: post_data,
-            processData: false,
-            contentType: false,
+            data: form_data,
             mimeType: "multipart/form-data",
             headers: {'X-CSRFToken': csrf_token},
+            contentType: false,
+            processData: false,
             async: false,
             success: function (data) {
                 console.log("Success! UPL-FORM")
