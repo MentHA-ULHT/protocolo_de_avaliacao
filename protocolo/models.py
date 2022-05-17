@@ -290,5 +290,12 @@ class Answer(models.Model):
     def quotation_range(self):
         return [i for i in range(self.quotation_min, self.quotation_max + 1)]
 
-    #def __str__(self):
-        #return f"{self.question.name} >> {self.multiple_choice_answer.name}"
+    def __str__(self):
+        if self.multiple_choice_answer is not None:
+            return f"{self.question.name} >> {self.multiple_choice_answer.name}"
+        elif self.text_answer is not None:
+            return f"{self.question.name} >> {self.text_answer[0:10]}"
+        elif self.submitted_answer is not None:
+            return f"{self.question.name} >> Reposta com imágem"
+        else:
+            return f"{self.question.name} >> Sem Resposta"

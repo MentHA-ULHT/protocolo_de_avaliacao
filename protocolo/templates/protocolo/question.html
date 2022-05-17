@@ -9,7 +9,7 @@
     {% endif %}
 
     {% if question.helping_images.all %}
-        <h6><b>Imagens:</b></h6>
+        <h6><b>Imagens de suporte:</b></h6>
         {% for image in question.helping_images.all %}
             <a target="_blank" href="{{ image.image.url }}">
                 <img class="img-preview" src="{{ image.image.url }}">

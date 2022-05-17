@@ -58,7 +58,7 @@ $(document).ready(function () {
             processData: false,
             async: false,
             success: function (data) {
-                console.log("Success! UPL-FORM")
+                console.log("Success!")
                 $('.container').html(data);
                 return false;
             },

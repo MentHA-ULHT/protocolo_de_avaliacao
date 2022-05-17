@@ -61,6 +61,10 @@
     border-color: #E1CA63;
 }
 
+.btn-warning:hover{
+    color: white;
+}
+
 .notes-area {
     width: 100%;
     height: 100%;
