@@ -1,0 +1,51 @@
+<div class="myreport">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Área de Avaliação</th>
+            <th colspan="6" scope="col">Resultado</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for area, instrument in report.items %}
+            <tr>
+                <td style="max-width: 3em">{{ area }}</td>
+                {% for inst, dimension in instrument.items %}
+                    {% if inst %}
+                        <td>
+                        <a id="{{ inst }}" class="btn btn-primary delete-same-id" data-toggle="collapse"
+                           href="#collapse{{ inst|cut:" " }}"
+                           role="button" aria-expanded="false" aria-controls="collapseExample">
+                            {{ inst }}: {{ dimension.Total }}
+                        </a>
+                        <br>
+                    {% endif %}
+                {% for dim, section in dimension.items %}
+                    {% if section.items is not None %}
+                        <div class="collapse" id="collapse{{ inst|cut:" " }}">
+                            <div style="margin-top: 1em" class="card card-body">
+                                <b>{{ dim }}:
+                                    {% for sec,evaluation in section.items %}
+                                        {% if forloop.first %}
+                                            {{ evaluation }}</b>
+                                        {% else %}
+                                            <i class="bi bi-caret-right">
+                                            {{ sec }}: {{ evaluation }}
+                                            </i>
+                                        {% endif %}
+                                    {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a class="btn jq-btn btn-warning btn-sm" href="{% url 'protocols' %}" style="margin-top: 30px">
+    Voltar atrás
+</a>

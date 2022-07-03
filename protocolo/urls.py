@@ -19,4 +19,6 @@ urlpatterns = [
          views.sections_view, name="sections"),
     path('question/<int:protocol_id>/<int:part_id>/<int:area_id>/<int:instrument_id>/<int:dimension_id>/<int:section_id>',
          views.question_view, name="question"),
+    path('report/<int:resolution_id>',
+         views.report_view, name="report"),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

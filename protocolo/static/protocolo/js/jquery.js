@@ -1,5 +1,27 @@
 console.log("jquery.js loaded")
 $(document).ready(function () {
+
+    $(document).on("click", ".delete-same-id", function (){
+        id = this.id;
+        id = id.replace(/\s/g, '');
+        console.log(id)
+        var list = document.querySelectorAll('#collapse'+$.trim(id))
+
+        for (i = 0; i < list.length; i++ ){
+            if (i >= 1) {
+                list[i].remove();
+            }
+        }
+    })
+
+    $(document).on("click", ".toggle", function () {
+        console.log("on toggle")
+        console.log($(this).id)
+        e = $(document).getElementsByClassName($(this).id)
+        e.toggle();
+
+    });
+
     $(document).on("click", ".jq-btn", function () {
         var href = $(this).attr("data-href");
         $.ajax({
@@ -48,6 +70,29 @@ $(document).ready(function () {
         const csrf_token = Cookies.get('csrftoken');
 
         console.log(form_data);
+        $.ajax({
+            method: 'POST',
+            url: href,
+            data: form_data,
+            mimeType: "multipart/form-data",
+            headers: {'X-CSRFToken': csrf_token},
+            contentType: false,
+            processData: false,
+            async: false,
+            success: function (data) {
+                console.log("Success!")
+                $('.container').html(data);
+                return false;
+            },
+            error: function () {
+                console.log("Error!");
+                alert("Pagina não disponível.");
+            }
+        })
+    });
+
+    $(document).on("click", ".jq-report-btn", function () {
+        console.log();
         $.ajax({
             method: 'POST',
             url: href,

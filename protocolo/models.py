@@ -219,13 +219,23 @@ class Resolution(models.Model):
                     self.statistics[area.id][instrument.id][dimension.id]['name'] = dimension.name
                     self.statistics[area.id][instrument.id][dimension.id]['answered'] = 0
                     self.statistics[area.id][instrument.id][dimension.id]['percentage'] = 0
+                    self.statistics[area.id][instrument.id][dimension.id]['quotation'] = 0
                     sections = Section.objects.filter(dimension=dimension)
                     for section in sections:
                         self.statistics[area.id][instrument.id][dimension.id][section.id] = {}
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['name'] = section.name
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['answered'] = 0
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['percentage'] = 0
+                        self.statistics[area.id][instrument.id][dimension.id][section.id]['quotation'] = 0
+                        questions = Question.objects.filter(section=section)
+                        # for question in questions:
+                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id] = {}
+                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['name'] = question.name
+                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['answered'] = 0
+                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['percentage'] = 0
+                        #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['quotation'] = 0
         self.save()
+        # json.dumps(self.statistics)
 
     def increment_statistics(self, part_id: int, area_id: int, instrument_id: int, dimension_id: int, section_id: int):
         part = Part.objects.get(pk=part_id)
@@ -260,6 +270,11 @@ class Resolution(models.Model):
 
         self.save()
 
+    def change_quotation(self, area_id: int, instrument_id: int, dimension_id: int, section_id: int,
+                         quotation: int):
+        self.statistics[area_id][instrument_id][dimension_id][section_id]['quotation'] = quotation
+        self.save()
+
 
 def resolution_path(instance, filename):
     return f'users/{instance.resolution.patient.id}/resolutions/{instance.resolution.id}/{filename}'
@@ -276,7 +291,7 @@ class Answer(models.Model):
     quotation = models.IntegerField(default=0, null=True, blank=True)
     notes = models.TextField(max_length=LONG_LEN, blank=True, null=True)
     resolution = models.ForeignKey('Resolution', on_delete=models.CASCADE)
-    submitted_answer = models.ImageField(upload_to=resolution_path,blank=True, null=True)
+    submitted_answer = models.ImageField(upload_to=resolution_path, blank=True, null=True)
 
     @property
     def quotation_max(self):
