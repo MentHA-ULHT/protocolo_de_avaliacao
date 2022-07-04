@@ -7,6 +7,12 @@ from .forms import *
 
 
 # Create your views here.
+def dashboard_view(request):
+    return render(request, 'protocolo/dashboard.html')
+
+def dashboard_content_view(request):
+    return render(request, 'protocolo/dashboardcontent.html')
+
 def protocolos_view(request):
     context = {'protocolos': Protocol.objects.all().order_by('order')}
     return render(request, 'protocolo/protocolos.html', context)
@@ -99,7 +105,8 @@ def instruments_view(request, protocol_id, part_id, area_id):
         'area': area,
         'part': part,
         'protocol': protocol,
-        'instruments': zip(instruments, answered_list, percentage_list)
+        'instruments': zip(instruments, answered_list, percentage_list),
+        'resolution' : r.id,
     }
 
     return render(request, 'protocolo/instruments.html', context)
@@ -132,6 +139,7 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id):
         'protocol': protocol,
         'instrument': instrument,
         'dimensions': zip(dimensions, answered_list, percentage_list),
+        'resolution': r.id,
     }
     return render(request, 'protocolo/dimensions.html', context)
 
@@ -171,6 +179,7 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'instrument': instrument,
         'dimension': dimension,
         'sections': zip(sections, answered_list, percentage_list),
+        'resolution': r.id,
     }
 
     return render(request, 'protocolo/sections.html', context)
@@ -186,7 +195,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     question = Question.objects.get(section=section.id)
     r = Resolution.objects.get(patient=request.user, part=part)
     answers = Answer.objects.filter(resolution=r)
-
+    print(question.helping_images)
     form = uploadAnswerForm(request.POST or None)
 
     context = {
@@ -198,6 +207,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'section': section,
         'question': question,
         'form': form,
+        'resolution': r.id,
     }
 
     for answer in answers:
@@ -289,7 +299,6 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                                 protocol_id=protocol_id, part_id=part_id,
                                 area_id=area_id, instrument_id=instrument_id,
                                 dimension_id=dimension_id)
-
     return render(request, 'protocolo/question.html', context)
 
 
@@ -298,8 +307,9 @@ def report_view(request, resolution_id):
     # É necessário o ensure_ascii = False para mostrar caracteres UTF-8
     report_json = r.statistics
     report_json_dumps = json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False)
-
     report = {}
+    answers = Answer.objects.filter(resolution=r)
+
     for area in Area.objects.filter(part=r.part):
         report[area.name] = {}
         instruments = Instrument.objects.filter(area=area)
@@ -326,10 +336,19 @@ def report_view(request, resolution_id):
                             report[area.name][instrument.name]["Total"] += answer.get().quotation
                             report[area.name][instrument.name][dimension.name]["Total"] += answer.get().quotation
 
-    print(json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False))
+
+    print(questions)
+    print(answers)
+
+
+
+    #print(json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False))
     # Funcionalidade
     context = {'report_json': report_json,
                'report_json_dumps': report_json_dumps,
-               'report': report}
+               'report': report,
+               'resolution': r,
+               'answers': answers,
+               }
 
     return render(request, 'protocolo/report.html', context)

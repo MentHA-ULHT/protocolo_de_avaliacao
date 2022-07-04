@@ -1,13 +1,13 @@
 console.log("jquery.js loaded")
 $(document).ready(function () {
 
-    $(document).on("click", ".delete-same-id", function (){
+    $(document).on("click", ".delete-same-id", function () {
         id = this.id;
         id = id.replace(/\s/g, '');
         console.log(id)
-        var list = document.querySelectorAll('#collapse'+$.trim(id))
+        var list = document.querySelectorAll('#collapse' + $.trim(id))
 
-        for (i = 0; i < list.length; i++ ){
+        for (i = 0; i < list.length; i++) {
             if (i >= 1) {
                 list[i].remove();
             }
@@ -23,13 +23,20 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".jq-btn", function () {
-        var href = $(this).attr("data-href");
+        element = $(this)
+        var href = element.attr("data-href");
+
+        if (element.hasClass('nav-link')){
+            $(".nav-link").removeClass("active");
+        }
+
+        $(this).addClass('active')
         $.ajax({
             method: 'GET',
             url: href,
             success: function (data) {
                 console.log("Success!");
-                $('.container').html(data);
+                $('.page-content').html(data);
             },
             error: function () {
                 console.log("Error!");

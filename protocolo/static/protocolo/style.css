@@ -28,10 +28,10 @@
 .flex-buttons {
     display: flex;
     flex-display: row;
-    flex-direction: row-reverse;
+    flex-direction: row;
     flex-wrap: nowrap;
     align-content: stretch;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: flex-end;
     width: 100%;
 }
@@ -63,6 +63,10 @@
 
 .btn-warning:hover{
     color: white;
+}
+
+.btn{
+    max-width: 125px;
 }
 
 .notes-area {

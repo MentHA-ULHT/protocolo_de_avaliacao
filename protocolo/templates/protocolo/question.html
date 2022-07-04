@@ -1,26 +1,47 @@
-{% include 'protocolo/tree.html' %}
-<div class="question-container">
-    <h4>{{ question.name }}</h4>
-    {% if question.description %}
-        <h8>{{ question.description | linebreaks }}</h8>
-    {% endif %}
-    {% if question.instruction %}
-        <b>Instrução:</b> {{ question.instruction }}
-    {% endif %}
+<div id="wrapper">
+    <div class="d-flex flex-column" id="content-wrapper">
+        <div id="content">
+            <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-dark mb-0" style="margin: 0px;margin-left: 25px;"></h3><a
+                    class="btn jq-btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#" data-href="{% url 'report' resolution %}"
+                    style="max-width:300px; margin-right: 25px;"><i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar
+                Relatório</a>
+            </div>
 
-    {% if question.helping_images.all %}
-        <h6><b>Imagens de suporte:</b></h6>
-        {% for image in question.helping_images.all %}
-            <a target="_blank" href="{{ image.image.url }}">
-                <img class="img-preview" src="{{ image.image.url }}">
-            </a>
-        {% endfor %}
-    {% endif %}
+            <div class="container-fluid">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <p class="text-primary m-0 fw-bold" style="font-size: 20px;">{{ question.name }}</p>
+                    </div>
+                    <div class="card-body">
+                        {% if question.description %}
+                            <h8>{{ question.description | linebreaks }}</h8>
+                        {% endif %}
+                        {% if question.instruction %}
+                            <b>Instrução:</b> {{ question.instruction }}
+                        {% endif %}
+                        {% if question.helping_images.all %}
+                            <br>
+                            <h8><b>Imagens de Suporte:</b></h8>
+                            {% for image in question.helping_images.all %}
+                                <br>
+                                <a target="_blank" href="{{ image.image.url }}">
+                                    <img class="img-preview" src="{{ image.image.url }}">
+                                </a>
+                            {% endfor %}
+                        {% endif %}
 
-    {% if question.possible_answers.all %}
-        {% include 'protocolo/mcq_question.html' %}
-    {% else %}
-        {% include 'protocolo/upl_question.html' %}
-    {% endif %}
-    <br>
+
+                        {% if question.possible_answers.all %}
+                            {% include 'protocolo/mcq_question.html' %}
+                        {% else %}
+                            {% include 'protocolo/upl_question.html' %}
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
 </div>
