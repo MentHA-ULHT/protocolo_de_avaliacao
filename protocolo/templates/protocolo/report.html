@@ -13,10 +13,10 @@
                                 <tr>
                                     <th style="width: 25%;">Áreas de Avaliação</th>
                                     {% for area, instrument in report.items %}
-                                    {% for inst, dimension in instrument.items %}
-                                        <th></th>
+                                        {% for inst, dimension in instrument.items %}
+                                            <th></th>
+                                        {% endfor %}
                                     {% endfor %}
-                                {% endfor %}
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -25,78 +25,80 @@
                                         <td>{{ area }}<br></td>
                                         {% for inst, dimension in instrument.items %}
                                             {% if inst %}
-                                            <td width="25%">
-                                                <div><a style="width: 100%" class="btn btn-primary" data-bs-toggle="collapse"
-                                                        aria-expanded="true"
-                                                        aria-controls="collapse-{{ inst|cut:" " }}"
-                                                        href="#collapse-{{ inst|cut:" " }}"
-                                                        role="button"><strong>{{ inst }}: {{ dimension.Total }}</strong></a>
-                                                    <div class="collapse" id="collapse-{{ inst|cut:" " }}" >
-                                                        <div class="table-responsive">
-                                                            <table class="table">
-                                                                <tbody>
-                                                                {% for dim, section in dimension.items %}
-                                                                    {% if forloop.counter0 == 0 %}
-                                                                        <!-- Nada -->
-                                                                    {% else %}
-                                                                        <tr>
-                                                                        <td>
-                                                                        <div>
-                                                                        <a class="btn btn-primary"
-                                                                           data-bs-toggle="collapse"
-                                                                           aria-expanded="false"
-                                                                           aria-controls="collapse-{{ dim|cut:" " }}"
-                                                                           href="#collapse-{{ dim|cut:" " }}"
-                                                                           role="button" style="margin-left: -8px;">
-                                                                            {{ dim }}:
-                                                                            {% for sec,evaluation in section.items %}
-                                                                                {% if sec == "Total" %}
-                                                                                    {{ evaluation }}
+                                                <td width="25%">
+                                                    <div><a style="width: 100%" class="btn btn-primary"
+                                                            data-bs-toggle="collapse"
+                                                            aria-expanded="true"
+                                                            aria-controls="collapse-{{ inst|cut:" " }}"
+                                                            href="#collapse-{{ inst|cut:" " }}"
+                                                            role="button"><strong>{{ inst }}: {{ dimension.Total }}</strong></a>
+                                                        <div class="collapse" id="collapse-{{ inst|cut:" " }}">
+                                                            <div class="table-responsive">
+                                                                <table class="table">
+                                                                    <tbody>
+                                                                    {% for dim, section in dimension.items %}
+                                                                        {% if forloop.counter0 == 0 %}
+                                                                            <!-- Nada -->
+                                                                        {% else %}
+                                                                            <tr>
+                                                                            <td>
+                                                                            <div>
+                                                                            <a class="btn btn-primary"
+                                                                               data-bs-toggle="collapse"
+                                                                               aria-expanded="false"
+                                                                               aria-controls="collapse-{{ dim|cut:" " }}"
+                                                                               href="#collapse-{{ dim|cut:" " }}"
+                                                                               role="button" style="margin-left: -8px;">
+                                                                                {{ dim }}:
+                                                                                {% for sec,evaluation in section.items %}
+                                                                                    {% if sec == "Total" %}
+                                                                                        {{ evaluation }}
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                                <br>
+                                                                            </a>
+                                                                            <div class="collapse"
+                                                                                 id="collapse-{{ dim|cut:" " }}">
+                                                                            <p style="margin-top: 15px;">
+                                                                        {% endif %}
+                                                                    {% for sec,evaluation in section.items %}
+                                                                        {% if forloop.counter0 == 0 %}
+                                                                            <!-- Nada -->
+                                                                        {% else %}
+                                                                            <i class="fa fa-minus"></i>
+                                                                            &nbsp;<a href="#" class="jq-btn"
+                                                                                {% for a in answers %}
+                                                                                    {% if a.question.section.name == sec %}
+                                                                                     data-href="{% url 'question' resolution.part.protocol.id resolution.part.id a.question.section.dimension.instrument.area.id a.question.section.dimension.instrument.id a.question.section.dimension.id a.question.id %}"
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                        >{{ sec }}</a> ({{ evaluation }})<br>
+                                                                            {% for a in answers %}
+                                                                                {% if a.question.section.name == sec %}
+                                                                                    {% if a.notes|length > 0 %}
+                                                                                        <i class="fa fa-info-circle"></i>
+                                                                                        &nbsp;Apontamentos:
+                                                                                        {{ a.notes }}<br>
+                                                                                    {% endif %}
                                                                                 {% endif %}
                                                                             {% endfor %}
-                                                                            <br>
-                                                                        </a>
-                                                                        <div class="collapse"
-                                                                             id="collapse-{{ dim|cut:" " }}">
-                                                                        <p style="margin-top: 15px;">
-                                                                    {% endif %}
-                                                                {% for sec,evaluation in section.items %}
-                                                                    {% if forloop.counter0 == 0 %}
-                                                                        <!-- Nada -->
-                                                                    {% else %}
-                                                                        <i class="fa fa-minus"></i>
-                                                                        &nbsp;<a href="#" class="jq-btn"
-                                                                                 {% for a in answers %}
-                                                                                    {% if a.question.section.name == sec %}
-                                                                                 data-href="{% url 'question' resolution.part.protocol.id resolution.part.id a.question.section.dimension.instrument.area.id a.question.section.dimension.instrument.id a.question.section.dimension.id a.question.id   %}"
-                                                                                    {% endif %}
-                                                                                 {% endfor %}
-                                                                    >{{ sec }}</a> ({{ evaluation }})<br>
-                                                                        {% for a in answers %}
-                                                                            {% if a.question.section.name == sec %}
-                                                                                {% if a.notes|length > 0 %}
-                                                                                    <i class="fa fa-info-circle"></i>
-                                                                        &nbsp;Apontamentos: {{ a.notes }}<br>
-                                                                                {% endif %}
-                                                                            {% endif %}
-                                                                        {% endfor %}
-                                                                    {% endif %}
-                                                                    <hr>
-                                                                {% endfor %}
-                                                                </p>
-                                                                </div>
-                                                                </div>
-                                                                </td>
-                                                                </tr>
-                                                                {% endfor %}
-                                                                <tr></tr>
-                                                                </tbody>
-                                                            </table>
+                                                                        {% endif %}
+                                                                        <hr>
+                                                                    {% endfor %}
+                                                                    </p>
+                                                                    </div>
+                                                                    </div>
+                                                                    </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                    <tr></tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                                {% else %}
+                                                </td>
+                                            {% else %}
                                                 <td></td>
                                             {% endif %}
                                         {% endfor %}
