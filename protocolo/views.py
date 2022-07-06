@@ -120,6 +120,9 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id):
 
     dimensions = Dimension.objects.filter(instrument=instrument_id).order_by('order')
 
+    if len(dimensions) == 1:
+        return redirect('sections', protocol_id, part_id, area_id, instrument_id, dimensions.get().id)
+
     # statistics
     r = Resolution.objects.get(patient=request.user, part=part)
     # print_nested_dict(r.statistics, 0)
@@ -152,6 +155,9 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     dimension = Dimension.objects.get(pk=dimension_id)
 
     sections = Section.objects.filter(dimension=dimension_id).order_by('order')
+    if len(sections) == 1:
+        return redirect('question', protocol_id,part_id, area_id ,instrument_id ,dimension_id ,sections.get().id)
+
 
     # statistics
     r = Resolution.objects.get(patient=request.user, part=part)
@@ -192,10 +198,9 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     instrument = Instrument.objects.get(pk=instrument_id)
     dimension = Dimension.objects.get(pk=dimension_id)
     section = Section.objects.get(pk=section_id)
-    question = Question.objects.get(section=section.id)
+    question = Question.objects.filter(section=section.id).first()
     r = Resolution.objects.get(patient=request.user, part=part)
     answers = Answer.objects.filter(resolution=r)
-    print(question.helping_images)
     form = uploadAnswerForm(request.POST or None)
 
     context = {
@@ -208,7 +213,20 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'question': question,
         'form': form,
         'resolution': r.id,
+        'answers': answers,
     }
+
+    if question.question_type == 3:
+        question_list = []
+        answered_ids = []
+        for question in Question.objects.filter(section=section.id):
+            question_list.append(question)
+
+            for answer in answers:
+                if question == answer.question:
+                    answered_ids.append(question.id)
+
+        context['question_list'] = question_list
 
     for answer in answers:
         if answer.resolution == r:
@@ -224,18 +242,15 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                     context['notes'] = answer.notes
                 if answer.quotation is not None:
                     context['quotation'] = answer.quotation
-    print(context['notes'])
+
     if request.method == 'POST':
-        question_type = int(request.POST.get('type'))  # 0 -> Escolha Multipla \ 1 -> Resposta Escrita
         existing_answer = None
 
         for answer in answers:
             if answer.question == question:
                 existing_answer = answer
-                print(existing_answer)
 
-        if question_type == 0:
-            print(request.POST)
+        if question.question_type == 1:
             id_answer = request.POST.get("choice")
             r = Resolution.objects.get(part=part,
                                        patient=request.user)
@@ -266,7 +281,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                             protocol_id=protocol_id, part_id=part_id,
                             area_id=area_id, instrument_id=instrument_id,
                             dimension_id=dimension_id)
-        elif question_type == 1:
+
+        elif question.question_type == 2:
             form = uploadAnswerForm(request.POST, files=request.FILES)
             if form.is_valid():
                 new_answer = Answer()
@@ -291,7 +307,6 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                     existing_answer.notes = new_answer.notes
                     existing_answer.save()
 
-
                 r.change_quotation( f'{area_id}', f'{instrument_id}', f'{dimension_id}',
                                            f'{section_id}', new_answer.quotation)
                 # quando guarda a pergunta volta às secções
@@ -299,6 +314,40 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                                 protocol_id=protocol_id, part_id=part_id,
                                 area_id=area_id, instrument_id=instrument_id,
                                 dimension_id=dimension_id)
+
+        elif question.question_type == 3:
+            for key in request.POST:
+                if 'choice' in str(key):
+                    k, question_id = key.split('-')
+                    q = Question.objects.get(pk=question_id)
+                    existing_answers_list = []
+
+                    if q.id in answered_ids:
+                        a = Answer.objects.filter(resolution=r, question=q).get()
+                        # modifica a associação existente
+                        a.multiple_choice_answer = PossibleAnswer.objects.get(pk=request.POST.get(key))
+                        quotation = a.multiple_choice_answer.quotation
+                        a.quotation = quotation
+                        a.notes = request.POST.get('notes')
+                        a.save()
+                        r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                           f'{section_id}', quotation)
+                    else:
+                        a = Answer()
+                        a.resolution = r
+                        a.multiple_choice_answer = PossibleAnswer.objects.get(pk=request.POST.get(key))
+                        a.question = q
+                        quotation = a.multiple_choice_answer.quotation
+                        a.quotation = quotation
+                        a.notes = request.POST.get('notes')
+                        a.save()
+                        r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                           f'{section_id}', quotation)
+
+
+            return redirect('instruments',
+                                protocol_id=protocol_id, part_id=part_id,
+                                area_id=area_id)
     return render(request, 'protocolo/question.html', context)
 
 
@@ -332,13 +381,8 @@ def report_view(request, resolution_id):
                     for question in questions:
                         answer = Answer.objects.filter(question=question, resolution=r)
                         if answer.exists():
-                            print(answer.get().quotation)
                             report[area.name][instrument.name]["Total"] += answer.get().quotation
                             report[area.name][instrument.name][dimension.name]["Total"] += answer.get().quotation
-
-
-    print(questions)
-    print(answers)
 
 
 

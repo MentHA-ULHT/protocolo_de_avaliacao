@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from .functions import percentage
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 
@@ -137,12 +138,20 @@ class Section(Common):
         return len(Question.objects.filter(section=self.id))
 
     def __str__(self):
-        return f"{self.dimension.name} >> {self.name}"
+        return f"{self.dimension.instrument.name} >> {self.dimension.name} >> {self.name}"
 
 
 class Question(Common):
+    #1 = Multiple Choice, 2 = Escrita aberta ou submissão, 3 = Tabela de escolhas multiplas (p. ex. Psicossintomatologia BSI)
+    question_type = models.PositiveIntegerField(default=1,
+                                        blank=False,
+                                        validators=[MinValueValidator(1), MaxValueValidator(3)])
     instruction = models.CharField(max_length=LONG_LEN,
                                    blank=True)
+    evaluation_scale = models.CharField(max_length=LONG_LEN,
+                                        blank=True,
+                                        default="",
+                                        null=True)
     helping_images = models.ManyToManyField('QuestionImage',
                                             default=None,
                                             related_name='images',

@@ -59,7 +59,7 @@ $(document).ready(function () {
             async: false,
             success: function (data) {
                 console.log("Success!")
-                $('.container').html(data);
+                $('.page-content').html(data);
                 return false;
             },
             error: function () {
@@ -88,7 +88,7 @@ $(document).ready(function () {
             async: false,
             success: function (data) {
                 console.log("Success!")
-                $('.container').html(data);
+                $('.page-content').html(data);
                 return false;
             },
             error: function () {

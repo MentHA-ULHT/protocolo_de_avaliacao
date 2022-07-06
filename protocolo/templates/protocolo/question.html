@@ -32,10 +32,12 @@
                         {% endif %}
 
 
-                        {% if question.possible_answers.all %}
+                        {% if question.question_type == 1 %}
                             {% include 'protocolo/mcq_question.html' %}
-                        {% else %}
+                        {% elif question.question_type == 2%}
                             {% include 'protocolo/upl_question.html' %}
+                        {% elif question.question_type == 3%}
+                            {% include 'protocolo/mcq_question_table.html' %}
                         {% endif %}
 
                     </div>
