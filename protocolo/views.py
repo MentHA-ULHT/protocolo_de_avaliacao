@@ -117,7 +117,6 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id):
     part = Part.objects.get(pk=part_id)
     area = Area.objects.get(pk=area_id)
     instrument = Instrument.objects.get(pk=instrument_id)
-
     dimensions = Dimension.objects.filter(instrument=instrument_id).order_by('order')
 
     if len(dimensions) == 1:
@@ -188,6 +187,8 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         'resolution': r.id,
     }
 
+    print(instrument.number_of_dimensions)
+
     return render(request, 'protocolo/sections.html', context)
 
 
@@ -221,11 +222,24 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         answered_ids = []
         for question in Question.objects.filter(section=section.id):
             question_list.append(question)
-
             for answer in answers:
                 if question == answer.question:
                     answered_ids.append(question.id)
 
+
+        # Esta parte permite dividir o question type 3 em dois
+        # Um que tem sempre as mesmas respostas, e mostrará a página como uma tabela
+        # Outro que as respostas são diferentes e mostrará varias perguntas individualmente, todas na mesma página
+        ans = 0
+        equal = True
+        for question in Question.objects.filter(section=section.id):
+            if ans == 0:
+                ans = question.possible_answers.all()
+                print(ans)
+            else:
+                equal = set(question.possible_answers.all()) == set(ans)
+
+        context['equal_answers'] = equal
         context['question_list'] = question_list
 
     for answer in answers:
@@ -341,6 +355,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                         a.quotation = quotation
                         a.notes = request.POST.get('notes')
                         a.save()
+                        r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
+                                               f'{section_id}')
                         r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
                                            f'{section_id}', quotation)
 
@@ -348,6 +364,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             return redirect('instruments',
                                 protocol_id=protocol_id, part_id=part_id,
                                 area_id=area_id)
+
     return render(request, 'protocolo/question.html', context)
 
 

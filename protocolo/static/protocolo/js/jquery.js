@@ -25,16 +25,19 @@ $(document).ready(function () {
     $(document).on("click", ".jq-btn", function () {
         element = $(this)
         var href = element.attr("data-href");
+        last_url = href;
 
         if (element.hasClass('nav-link')){
             $(".nav-link").removeClass("active");
         }
 
         $(this).addClass('active')
+
         $.ajax({
             method: 'GET',
             url: href,
             success: function (data) {
+                console.log(href);
                 console.log("Success!");
                 $('.page-content').html(data);
             },
@@ -42,7 +45,7 @@ $(document).ready(function () {
                 console.log("Error!");
                 alert("Pagina não disponível.");
             }
-        })
+        });
     });
 
     $(document).on("click", ".btn-submit", function () {

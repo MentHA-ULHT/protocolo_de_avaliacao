@@ -18,7 +18,7 @@
                             <h8>{{ question.description | linebreaks }}</h8>
                         {% endif %}
                         {% if question.instruction %}
-                            <b>Instrução:</b> {{ question.instruction }}
+                            <b>Instrução:</b> {{ question.instruction | linebreaks }}
                         {% endif %}
                         {% if question.helping_images.all %}
                             <br>

@@ -74,8 +74,12 @@
                         </div>
                         <!-- Buttons -->
                         <div class="flex-buttons">
-                            <button class="btn jq-btn btn-primary flex-left"
+                            <button id="previous" class="btn jq-btn btn-primary flex-left"
+                                    {% if instrument.number_of_dimensions > 1 %}
                                     data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id %}"
+                                    {% else %}
+                                    data-href="{% url 'instruments' protocol.id part.id area.id %}"
+                                    {% endif %}
                                     type="button">
                                 <i class="fa fa-chevron-left"></i>&nbsp; Anterior
                             </button>
