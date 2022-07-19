@@ -1,6 +1,17 @@
 console.log("jquery.js loaded")
 $(document).ready(function () {
 
+    $(document).on("click", ".report-button", function () {
+        document.getElementById("overlay").style.display = "flex";
+        document.getElementById("overlay").style.zIndex = "100";
+    })
+
+    function off() {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("overlay").style.zIndex = "2";
+    }
+
+
     $(document).on("click", ".delete-same-id", function () {
         id = this.id;
         id = id.replace(/\s/g, '');
@@ -27,7 +38,7 @@ $(document).ready(function () {
         var href = element.attr("data-href");
         last_url = href;
 
-        if (element.hasClass('nav-link')){
+        if (element.hasClass('nav-link')) {
             $(".nav-link").removeClass("active");
         }
 
@@ -40,6 +51,7 @@ $(document).ready(function () {
                 console.log(href);
                 console.log("Success!");
                 $('.page-content').html(data);
+                off()
             },
             error: function () {
                 console.log("Error!");
