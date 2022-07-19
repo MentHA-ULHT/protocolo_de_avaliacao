@@ -5,6 +5,11 @@ from django.urls import reverse
 from .functions import *
 from .forms import *
 
+#Other Imports
+import plotly.graph_objects as go
+import plotly
+import pandas as pd
+
 
 # Create your views here.
 def dashboard_view(request):
@@ -380,30 +385,60 @@ def report_view(request, resolution_id):
         report[area.name] = {}
         instruments = Instrument.objects.filter(area=area)
         for instrument in instruments:
+            quotations = []
+            names = []
             report[area.name][instrument.name] = {}
             dimensions = Dimension.objects.filter(instrument=instrument)
             report[area.name][instrument.name]["Total"] = 0
+            report[area.name][instrument.name]["Graph"] = None
             for dimension in dimensions:
+                if dimension.name != 'None':
+                    names.append(dimension.name)
                 report[area.name][instrument.name][dimension.name] = {}
                 report[area.name][instrument.name][dimension.name]['Total'] = 0
                 sections = Section.objects.filter(dimension=dimension)
                 for section in sections:
+                    if dimension.name == 'None' and section.name != 'None':
+                        names.append(section.name)
                     report[area.name][instrument.name][dimension.name][section.name] = {}
                     questions = Question.objects.filter(section=section)
-                    # for question in questions:
                     report[area.name][instrument.name][dimension.name][section.name] = \
                         report_json[str(area.id)][str(instrument.id)][str(dimension.id)][str(section.id)].get(
                             'quotation')
-                    sum_quotations = 0
                     for question in questions:
                         answer = Answer.objects.filter(question=question, resolution=r)
                         if answer.exists():
                             report[area.name][instrument.name]["Total"] += answer.get().quotation
                             report[area.name][instrument.name][dimension.name]["Total"] += answer.get().quotation
+                        if dimension.name == 'None' and section.name != 'None':
+                            quotations.append(answer.get().quotation)
+                if dimension.name != 'None':
+                    quotations.append(report[area.name][instrument.name][dimension.name]["Total"])
+            print(dimension)
+            print(quotations)
+            print(names)
+            if len(quotations) == len(names) and dimension.name != 'None' or len(quotations) == len(names) and section.name != 'None':
+                print("gerou graph")
+                fig = go.Figure(data=go.Scatterpolar(
+                    r=quotations,
+                    theta=names,
+                    fill='toself'
+                ))
+                fig.update_traces(fill='toself')
+                fig.update_layout(
+                    polar=dict(
+                        radialaxis=dict(
+                            visible=True
+                        ),
+                    ),
+                    showlegend=False
+                )
+                fig.update_yaxes(automargin=True)
+                #fig.show()
+                report[area.name][instrument.name]["Graph"] = plotly.offline.plot(fig, auto_open = False, output_type="div")
 
 
-
-    #print(json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False))
+    print(json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False))
     # Funcionalidade
     context = {'report_json': report_json,
                'report_json_dumps': report_json_dumps,
