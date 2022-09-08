@@ -9,8 +9,7 @@ Deployment
 1. Abrir o cmd
 2. Fazer cd para o directorio onde está o manage.py
 3. Correr o comando "py manage.py runserver"
-4. Abrir localhost no browser
-5. Antes de navegar na aplicação vá a localhost:8000/admin
+4. Abrir http://127.0.0.1:8000/protocolo/dashboard no browser
 6. Faça login com as credenciais user:"superuser" pw:"super123"
 
 **Este protótipo ainda está muito incompleto**
