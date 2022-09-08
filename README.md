@@ -2,7 +2,7 @@
 
 ⚙️ Requisitios
 ======
-1. Python 3.9 ou superior
+1. Python 3.10 ou superior
 
 🔧 Deployment
 ======
