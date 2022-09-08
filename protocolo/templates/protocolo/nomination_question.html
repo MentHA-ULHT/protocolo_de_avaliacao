@@ -1,19 +1,21 @@
-{% load markdownify %}
 <form class="flex-container" id="question-form" action="" method="post">
     <input type="hidden" name="type" value="0">
     {% csrf_token %}
-    <div class="flex-choices flex-item padding-top-25">
+    <div class="flex-choices flex-item padding-top-25" style="display: flex;flex-wrap: wrap">
         {% for answer in question.possible_answers.all %}
-            <label>
-                <input class="" id="{{ answer.id }}" name="choice" type="radio" value="{{ answer.id }}"
-                        {% if answer.id in existing_answer_id %}
-                       checked="checked"
-                        {% endif %}
-                />
-                {{ answer.name }}
-            </label>
-            <br>
-        {% endfor %}
+            <div class="card w-25" style="height: 100px">
+                <img src="media/{{ answer.image }}" class="card-img w-25 d-block" style="object-fit: contain; max-height: 99px" />
+                <div class="card-img-overlay">
+                    <h4 style="text-align: center">{{ answer.name }}</h4>
+                    <p style="text-align: center;justify-content: center"><input style="align-self: center;" id="{{ answer.id }}" name="choice" type="checkbox" value="{{ answer.id }}"
+                                {% if answer.id in existing_answer_id %}
+                               checked="checked"
+                                {% endif %}
+                        /></p>
+                </div>
+            </div>
+            {% endfor %}
+
     </div>
 
     <div class="flex-textarea flex-item padding-top-25">

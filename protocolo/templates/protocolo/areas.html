@@ -1,19 +1,26 @@
 <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
-            <div class="d-sm-flex justify-content-between align-items-center mb-4">
-
-                <h3 class="text-dark mb-0" style="margin: 0px;margin-left: 25px;"></h3><a
-                    class="btn jq-btn btn-primary btn-sm d-none d-sm-inline-block report-button" role="button" ionclick="on()" href="#"
-                    data-href="{% url 'report' resolution %}"
-                    style="max-width:300px; margin-right: 25px;"><i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório</a>
-
-
+        <div class="d-sm-flex justify-content-between align-items-center h-auto mb-4">
+                <div class="container-fluid">
+                    <div class="card shadow">
+                        <div class="card-header py-3 flex-header">
+                            {% include 'protocolo/tree.html' %}
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="container-fluid">
                 <div class="card shadow">
-                    <div class="card-header py-3">
-                        <p class="text-primary m-0 fw-bold" style="font-size: 20px;">Areas</p>
+                    <div class="card-header py-3 flex-header">
+                        <p class="text-primary m-0 fw-bold" style="font-size: 20px;">Areas ({{ part.name }})</p>
+
+                        <h3 class="text-dark mb-0" style="margin: 0px;margin-left: 25px;"></h3><a
+                            class="btn jq-btn btn-primary btn-sm d-none d-sm-inline-block report-button" role="button"
+                            ionclick="on()" href="#"
+                            data-href="{% url 'report' resolution %}"
+                            style="max-width:300px; margin-right: 25px;"><i
+                            class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive table mt-2" id="dataTable" role="grid"
@@ -32,8 +39,11 @@
                                     {% for area,answered,percentage in areas %}
                                         <!-- Name -->
                                         <td style="margin-top: 0px;padding-bottom: 0px;">
+                                        <a href="#" class="jq-btn no-decor"
+                                               data-href="{% url 'instruments' protocol.id part.id area.id patient.id %}">
                                             <p style="margin-top: 10px;">
                                                 {{ area.order }}. {{ area.name }}</p>
+                                            </a>
                                         </td>
 
                                         <!-- Progress Bar -->
@@ -50,7 +60,7 @@
                                         <!-- Button -->
                                         <td style="text-align: right; padding-right:25px; padding-bottom: 0px;">
                                             <a href="#" class="jq-btn"
-                                               data-href="{% url 'instruments' protocol.id part.id area.id %}">
+                                               data-href="{% url 'instruments' protocol.id part.id area.id patient.id %}">
                                                 <button class="btn btn-primary" type="button"
                                                         style="border-radius: 217px;">
                                                     <i class="fa fa-chevron-right"
@@ -72,7 +82,8 @@
                             </table>
                         </div>
                         <div class="flex-buttons">
-                            <button id="previous" class="btn jq-btn btn-primary flex-left" data-href="{% url 'parts' protocol.id %}"
+                            <button id="previous" class="btn jq-btn btn-primary flex-left"
+                                    data-href="{% url 'parts' protocol.id patient.id %}"
                                     type="button">
                                 <i class="fa fa-chevron-left"></i>&nbsp; Anterior
                             </button>
