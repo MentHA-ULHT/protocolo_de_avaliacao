@@ -18,7 +18,7 @@
 ======
 - A plataforma tambem se encontra hospedada no PythonAnywhere
 - (⚠️ A navegação no PythonAnywhere é muito mais lenta do que se fizer hosting localmente)
-. (⚠️ Portanto é recomendado que faça hosting local, como explicado no "Deployment")
+- (⚠️ Portanto é recomendado que faça hosting local, como explicado no "Deployment")
 1. Abrir o Link https://nunoras.pythonanywhere.com/protocolo/dashboard#
 2. Fazer login com as credenciais user:"superuser" pw:"super123"
 
