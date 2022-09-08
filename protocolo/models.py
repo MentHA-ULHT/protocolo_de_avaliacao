@@ -89,6 +89,11 @@ class Area(Common):
                     count += s.number_of_questions
         return count
 
+    @property
+    def instrument(self):
+        return Instrument.objects.filter(area=self).get()
+
+
 
 class Instrument(Common):
     area = models.ForeignKey('Area', on_delete=models.CASCADE, related_name='instruments')

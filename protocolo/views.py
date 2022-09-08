@@ -69,6 +69,9 @@ def areas_view(request, protocol_id, part_id, patient_id):
     part = Part.objects.get(pk=part_id)
     areas = Area.objects.filter(part=part).order_by('order')
     patient = Participante.objects.get(pk=patient_id)
+    rel_q = Question.objects.filter(name="Relação com o Avaliador").get()
+    coop_q = Question.objects.filter(name="Cooperação dada na entrevista").get()
+    print(coop_q)
 
     # ESTOU A CRIAR A RESOLUÇAO AQUI, MAS DEPOIS MUDAR DE SITIO
     r = None
@@ -97,6 +100,8 @@ def areas_view(request, protocol_id, part_id, patient_id):
         'protocol': protocol,
         'resolution': r.id,
         'patient': patient,
+        'coop': coop_q,
+        'rel': rel_q,
     }
     return render(request, 'protocolo/areas.html', context)
 
@@ -484,6 +489,9 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             return redirect('instruments',
                             protocol_id=protocol_id, part_id=part_id,
                             area_id=area_id, patient_id=patient_id)
+        elif question.name == "Relação com o Avaliador" or question.name == "Cooperação dada na entrevista":
+            return redirect('areas',
+                            protocol_id=protocol_id, part_id=part_id, patient_id=patient_id)
         elif question.section.dimension.name == "None":
             return redirect('instruments',
                             protocol_id=protocol_id, part_id=part_id,
@@ -496,6 +504,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             return redirect('sections',
                             protocol_id=protocol_id, part_id=part_id,
                             area_id=area_id, instrument_id=instrument_id, dimension_id=dimension_id, patient_id=patient_id)
+
 
 
 

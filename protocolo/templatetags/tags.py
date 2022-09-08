@@ -190,3 +190,7 @@ def mmse_evaluation(patient, quotation):
         return quotation <= 22
     else:
         return quotation <=27
+
+@register.simple_tag
+def save(x):
+    return x

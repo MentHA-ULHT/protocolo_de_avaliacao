@@ -21,7 +21,7 @@
                     </a>
                 {% endif %}
 
-                {% if instrument is not None %}
+                {% if instrument is not None and instrument.name != "None" %}
                     <a class="jq-btn btn" style="display: contents;" role="button"
                        data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id patient.id %}">
                         {{ instrument.name }} \

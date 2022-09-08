@@ -27,6 +27,8 @@
         <button class="btn jq-btn btn-primary flex-left"
                 {% if question.section.dimension.number_of_questions > 1 %}
                 data-href="{% url 'sections' protocol.id part.id area.id instrument.id dimension.id patient.id %}"
+                {% elif question.name == 'Cooperação dada na entrevista' or question.name == 'Relação com o Avaliador' %}
+                data-href="{% url 'areas' protocol.id part.id patient.id %}"
                 {% else %}
                 data-href="{% url 'dimensions' protocol.id part.id area.id instrument.id patient.id %}"
                 {% endif %}

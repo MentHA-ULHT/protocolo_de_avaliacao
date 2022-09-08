@@ -40,7 +40,16 @@
                                         <!-- Name -->
                                         <td style="margin-top: 0px;padding-bottom: 0px;">
                                         <a href="#" class="jq-btn no-decor"
-                                               data-href="{% url 'instruments' protocol.id part.id area.id patient.id %}">
+                                           {% if area.name == 'Consciência Humor e Comportamento' %}
+                                                data-href="{% url 'dimensions' protocol.id part.id area.id area.instrument.id patient.id %}">
+                                           {% elif area.name == 'Cooperação dada na entrevista'  %}
+                                               data-href="{% url 'question' protocol.id part.id area.id area.instrument.id coop.section.dimension.id coop.section.id  patient.id %}">
+                                           {% elif area.name == 'Relação com o Avaliador'  %}
+                                           data-href="{% url 'question' protocol.id part.id area.id area.instrument.id rel.section.dimension.id rel.section.id  patient.id %}">
+                                           {% else %}
+                                                data-href="{% url 'instruments' protocol.id part.id area.id patient.id %}">
+                                           {% endif %}
+
                                             <p style="margin-top: 10px;">
                                                 {{ area.order }}. {{ area.name }}</p>
                                             </a>

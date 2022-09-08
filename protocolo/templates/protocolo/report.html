@@ -28,6 +28,7 @@
                                         <td>
                                             <!-- Instrumentos -->
                                             {% for instrument_name, dimension in instrument.items %}
+                                                {% if instrument_name != 'None' %}
                                                 <span class="fw-bold">
                                                 <a href="#" class="jq-btn no-decor"
                                                         {% for i in instruments %}
@@ -45,6 +46,7 @@
                                                     <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
                                                 </svg>
                                                 </a>
+                                                {% endif %}
                                                 {% exist_answers instrument_name answers as exists %}
                                                 {% if not exists %}
                                                     <ul class="list-group list-unstyled">
@@ -170,7 +172,7 @@
                                                         {% for dim, section in dimension.items %}
                                                             {% if forloop.counter0 == 0 %}
                                                                 <!-- Nada -->
-                                                            {% elif dim != 'None' and dim != 'Graph' and instrument_name != "GDS" %}
+                                                            {% elif dim != 'None' and dim != 'Graph' and instrument_name != "GDS" and instrument_name != "None" %}
                                                                 <li>
                                                                     <a href="#" class="jq-btn no-decor"
                                                                             {% for q in questions %}
@@ -198,11 +200,9 @@
                                         </td>
                                         <td style="justify-content: center">
                                             {% for instrument_name, dimension in instrument.items %}
-
-                                                {% if dimension.Graph and instrument_name != "GDS" %}
+                                                {% if dimension.Graph and instrument_name != "GDS" and instrument_name != 'None' %}
                                                     {{ dimension.Graph|safe }}
                                                 {% endif %}
-
                                             {% endfor %}
                                         </td>
                                         {% if forloop.counter == 1 %}
