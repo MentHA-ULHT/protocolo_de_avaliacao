@@ -5,14 +5,16 @@ from django.utils import timezone
 from django.conf import settings
 from .functions import percentage
 from django.core.validators import MaxValueValidator, MinValueValidator
+from diario.models import *
 
 # Create your models here.
 
 SMALL_LEN = 50
-MEDIUM_LEN = 150
-LONG_LEN = 500
+MEDIUM_LEN = 250
+LONG_LEN = 1000
 
 HELPING_IMAGES_DIR = "helping_images/"
+PA_IMAGES_DIR = "possible_answers_images/"
 
 
 # É possivel criar um modelo "Common"
@@ -109,6 +111,39 @@ class Instrument(Common):
 
         return count
 
+    @property
+    def maximum_quotation(self):
+        questions = Question.objects.all()
+        max_q = 0
+        dimensions = Dimension.objects.filter(instrument=self)
+        sections = []
+        for sec in Section.objects.all():
+            if sec.dimension in dimensions:
+                sections.append(sec)
+
+        for q in questions:
+            if q.section in sections:
+                if max_q < q.quotation_max:
+                    max_q = q.quotation_max
+
+        return max_q
+
+    @property
+    def minimum_quotation(self):
+        questions = Question.objects.all()
+        min_q = 0
+        dimensions = Dimension.objects.filter(instrument=self)
+        sections = []
+        for sec in Section.objects.all():
+            if sec.dimension in dimensions:
+                sections.append(sec)
+
+        for q in questions:
+            if q.section in sections:
+                if min_q > q.quotation_max:
+                    min_q = q.quotation_max
+
+        return min_q
 
 class Dimension(Common):
     instrument = models.ForeignKey('Instrument', on_delete=models.CASCADE)
@@ -126,6 +161,18 @@ class Dimension(Common):
 
         return count
 
+    @property
+    def maximum_quotation(self):
+        questions = Question.objects.all()
+        sections = Section.objects.filter(dimension=self)
+        max_q = 0
+
+        for q in questions:
+            if q.section in sections:
+                max_q = max_q + q.quotation_max
+
+        return max_q
+
     def __str__(self):
         return f"{self.instrument.name} >> {self.name}"
 
@@ -137,21 +184,30 @@ class Section(Common):
     def number_of_questions(self):
         return len(Question.objects.filter(section=self.id))
 
+    @property
+    def maximum_quotation(self):
+        questions = Question.objects.all()
+        max_q = 0
+
+        for q in questions:
+            if q.section == self :
+                max_q = max_q + q.quotation_max
+
+        return max_q
+
     def __str__(self):
         return f"{self.dimension.instrument.name} >> {self.dimension.name} >> {self.name}"
 
 
 class Question(Common):
     #1 = Multiple Choice, 2 = Escrita aberta ou submissão, 3 = Tabela de escolhas multiplas (p. ex. Psicossintomatologia BSI)
+    #4 = Checkboxes, 5 = Multiplas text areas com cronómetro, 6 = Nomeação de Imagens, 7= Memoria (Reconhecimento),
+    #8 = GDS Questionário, #9 GDS atribuir estadio
     question_type = models.PositiveIntegerField(default=1,
                                         blank=False,
-                                        validators=[MinValueValidator(1), MaxValueValidator(3)])
-    instruction = models.CharField(max_length=LONG_LEN,
+                                        validators=[MinValueValidator(1), MaxValueValidator(9)])
+    instruction = models.TextField(max_length=LONG_LEN,
                                    blank=True)
-    evaluation_scale = models.CharField(max_length=LONG_LEN,
-                                        blank=True,
-                                        default="",
-                                        null=True)
     helping_images = models.ManyToManyField('QuestionImage',
                                             default=None,
                                             related_name='images',
@@ -162,8 +218,9 @@ class Question(Common):
                                               default=None,
                                               related_name='possible_answers',
                                               blank=True)
-    quotation_max = models.IntegerField(default=0)
-    quotation_min = models.IntegerField(default=1)
+    quotation_max = models.IntegerField(default=10)
+    quotation_min = models.IntegerField(default=0)
+    pdf_page = models.IntegerField(default=0)
 
     @property
     def allow_submission(self):
@@ -171,8 +228,13 @@ class Question(Common):
             return True
         return False
 
+    @property
+    def instrument(self):
+        self.section.dimension.instrument.name
+
     def __str__(self):
         return f"{self.name}"
+
 
 
 class QuestionImage(models.Model):
@@ -189,22 +251,25 @@ class QuestionImage(models.Model):
 
 class PossibleAnswer(Common):
     quotation = models.IntegerField(default=0)
+    image = models.ImageField(upload_to=PA_IMAGES_DIR,
+                              default=None,
+                              blank=True, null=True)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.id}. {self.name} - {self.quotation}"
 
 
 class Resolution(models.Model):
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL,  # estou a ir buscar isto à tabela user do django
-                                on_delete=models.CASCADE)
+    patient = models.ForeignKey(Participante,
+                                on_delete=models.CASCADE, default=None, blank=True, null=True)
     part = models.ForeignKey('Part', on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
-
+    doctor = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE, default=None, blank=True, null=True)
     statistics = models.JSONField(blank=True, default=dict)
 
     def __str__(self):
-        name = " ".join([self.patient.first_name, self.patient.last_name])
-        return f"{name} - {self.part.name} " \
+        return f"{self.id}. {self.patient.nome} - {self.part.name} " \
                f"({self.date.day}/{self.date.month}/{self.date.year}, {self.date.hour}:{self.date.minute})"
 
     def initialize_statistics(self):
@@ -222,6 +287,7 @@ class Resolution(models.Model):
                 self.statistics[area.id][instrument.id]['name'] = instrument.name
                 self.statistics[area.id][instrument.id]['answered'] = 0
                 self.statistics[area.id][instrument.id]['percentage'] = 0
+                self.statistics[area.id][instrument.id]['quotation'] = 0
                 dimensions = Dimension.objects.filter(instrument=instrument)
                 for dimension in dimensions:
                     self.statistics[area.id][instrument.id][dimension.id] = {}
@@ -271,6 +337,7 @@ class Resolution(models.Model):
             percentage(total=dimension.number_of_questions,
                        partial=self.statistics[area_id][instrument_id][dimension_id]['answered'])
 
+
         section = Section.objects.get(pk=section_id)
         self.statistics[area_id][instrument_id][dimension_id][section_id]['answered'] += 1
         self.statistics[area_id][instrument_id][dimension_id][section_id]['percentage'] = \
@@ -282,6 +349,52 @@ class Resolution(models.Model):
     def change_quotation(self, area_id: int, instrument_id: int, dimension_id: int, section_id: int,
                          quotation: int):
         self.statistics[area_id][instrument_id][dimension_id][section_id]['quotation'] = quotation
+        answers = Answer.objects.filter(resolution=self)
+        q = 0
+        for a in answers:
+            if str(a.question.section.dimension.id) == dimension_id:
+                q = q + a.quotation
+        self.statistics[area_id][instrument_id][dimension_id]['quotation'] = q
+
+        q = 0
+        dims = Dimension.objects.filter(instrument=Instrument.objects.filter(id=instrument_id).get())
+        for a in answers:
+            if a.question.section.dimension in dims:
+                q = q + a.quotation
+        self.statistics[area_id][instrument_id]['quotation'] = q
+        self.save()
+
+    def decrement_statistics(self, part_id: int, area_id: int, instrument_id: int, dimension_id: int, section_id: int):
+        part = Part.objects.get(pk=part_id)
+        self.statistics['total_answered'] -= 1
+        self.statistics['total_percentage'] = percentage \
+            (total=part.number_of_questions,
+             partial=self.statistics['total_answered'])
+
+        area = Area.objects.get(pk=area_id)
+        self.statistics[area_id]['answered'] -= 1
+        self.statistics[area_id]['percentage'] = \
+            percentage(total=area.number_of_questions,
+                       partial=self.statistics[area_id]['answered'])
+
+        instrument = Instrument.objects.get(pk=instrument_id)
+        self.statistics[area_id][instrument_id]['answered'] -= 1
+        self.statistics[area_id][instrument_id]['percentage'] = \
+            percentage(total=instrument.number_of_questions,
+                       partial=self.statistics[area_id][instrument_id]['answered'])
+
+        dimension = Dimension.objects.get(pk=dimension_id)
+        self.statistics[area_id][instrument_id][dimension_id]['answered'] -= 1
+        self.statistics[area_id][instrument_id][dimension_id]['percentage'] = \
+            percentage(total=dimension.number_of_questions,
+                       partial=self.statistics[area_id][instrument_id][dimension_id]['answered'])
+
+        section = Section.objects.get(pk=section_id)
+        self.statistics[area_id][instrument_id][dimension_id][section_id]['answered'] -= 1
+        self.statistics[area_id][instrument_id][dimension_id][section_id]['percentage'] = \
+            percentage(total=section.number_of_questions,
+                       partial=self.statistics[area_id][instrument_id][dimension_id][section_id]['answered'])
+
         self.save()
 
 
@@ -297,10 +410,11 @@ class Answer(models.Model):
                                                unique=False,
                                                blank=True, null=True)
     text_answer = models.TextField(max_length=LONG_LEN, blank=True)
+    submitted_answer = models.ImageField(upload_to=resolution_path, blank=True, null=True)
     quotation = models.IntegerField(default=0, null=True, blank=True)
     notes = models.TextField(max_length=LONG_LEN, blank=True, null=True)
     resolution = models.ForeignKey('Resolution', on_delete=models.CASCADE)
-    submitted_answer = models.ImageField(upload_to=resolution_path, blank=True, null=True)
+
 
     @property
     def quotation_max(self):
@@ -323,3 +437,29 @@ class Answer(models.Model):
             return f"{self.question.name} >> Reposta com imágem"
         else:
             return f"{self.question.name} >> Sem Resposta"
+
+    @property
+    def instrument(self):
+        return self.question.section.dimension.instrument.name
+
+class TextInputAnswer(models.Model):
+    # class para inputs
+    # fk para answer
+    # related_name para aceder desde a answer
+    answer = models.ForeignKey('Answer',
+                                 on_delete=models.CASCADE,related_name='TIAnswer')
+    seconds = models.IntegerField(default=0, null=True, blank=True)
+    text = models.TextField(max_length=LONG_LEN, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.id}. {self.text}"
+
+class MultipleChoicesCheckbox(Common):
+    #class parecida à multiple choices
+    #fk para answer
+    #text field
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name='MCCAnswer')
+    choice = models.ForeignKey('PossibleAnswer', on_delete=models.CASCADE, related_name='CheckBoxChoice')
+
+    def __str__(self):
+        return f"{self.choice.name}"

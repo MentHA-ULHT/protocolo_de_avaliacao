@@ -1,15 +1,35 @@
-console.log("jquery.js loaded")
+console.log("jquery.js loaded");
 $(document).ready(function () {
 
-    $(document).on("click", ".report-button", function () {
-        document.getElementById("overlay").style.display = "flex";
-        document.getElementById("overlay").style.zIndex = "100";
-    })
+    var seconds = 0;
+    var ticking = false;
 
-    function off() {
-        document.getElementById("overlay").style.display = "none";
-        document.getElementById("overlay").style.zIndex = "2";
+    function tick() {
+        if (ticking) {
+            var counter = document.getElementById("clock");
+            seconds++;
+            counter.innerHTML =
+                "0:" + (seconds < 10 ? "0" : "") + String(seconds);
+            if (seconds < 60) {
+                setTimeout(tick, 1000);
+            } else {
+                document.getElementById("clock").innerHTML = "1:00";
+            }
+        }
     }
+
+    $(document).on("click", ".btn-timer", function () {
+        ico = $('#timer-ico');
+        if (ico.hasClass('fa-pause')){
+            ico.removeClass('fa-pause');
+            ico.addClass('fa-play');
+        } else {
+            ico.addClass('fa-pause');
+            ico.removeClass('fa-play');
+        }
+        ticking = (ticking == true) ? false : true
+        tick();
+    })
 
 
     $(document).on("click", ".delete-same-id", function () {
@@ -34,6 +54,7 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".jq-btn", function () {
+        NProgress.start()
         element = $(this)
         var href = element.attr("data-href");
         last_url = href;
@@ -51,7 +72,9 @@ $(document).ready(function () {
                 console.log(href);
                 console.log("Success!");
                 $('.page-content').html(data);
-                off()
+                seconds = 0;
+                ticking = false;
+                NProgress.done(true)
             },
             error: function () {
                 console.log("Error!");
