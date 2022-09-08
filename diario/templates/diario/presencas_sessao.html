@@ -1,0 +1,102 @@
+<style>
+div.text {
+    color:#5F9EA0;
+    padding-top: 11%;
+    padding-left: 27%;
+    font-size: 30px;
+}
+div.tab {
+    width:100%;
+    margin: 0;
+    background: transparent;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+    }
+
+div.line {
+    border-color:#5F9EA0;
+    padding-top: -10%;
+    padding-left: 35%;
+    width:39%;
+
+}
+
+div.buttonConfirm {
+    border-color: #5F9EA0;
+    padding-top: 19%;
+    padding-left: 75%;
+}
+</style>
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Presenças</title>
+</head>
+<body>
+
+<main>
+    <div class="text">
+        Presenças
+    </div>
+    <div class="line">
+        <hr>
+    </div>
+
+    <div class="tab">
+        <table border="0" id="q4" ALIGN=center cellspacing="10" cellpadding="4" style="width:50%;">
+            <tr>
+                <th rowspan="2">Participantes</th>
+                <th rowspan="2">Online</th>
+                <th rowspan="2">Presencial</th>
+                <th rowspan="2">Nao vem</th>
+                <th colspan="2">Modo de resposta</th>
+            </tr>
+            <tr>
+                <th>Caderno</th>
+                <th>App</th>
+            </tr>
+            {% for participante in participantes %}
+            <div>
+                <tr>
+                    <td style="text-align: center;">{{participante}}</td>
+                    <td style="text-align: center;">
+                        <input type="radio" data-participante="{{participante.id}}" value="online"
+                               name="{{participante.id}}" {% if participante.online %} checked {% endif %}>
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="radio" data-participante="{{participante.id}}" value="presencial"
+                               name="{{participante.id}}" {% if participante.presencial %} checked {% endif %}>
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="radio" data-participante="{{participante.id}}" value="naoVeio"
+                               name="{{participante.id}}" {% if participante.naoVeio %} checked {% endif %}>
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="radio" data-participante="{{participante.id}}" value="caderno"
+                               name="{{participante.id}}+1">
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="radio" data-participante="{{participante.id}}" value="app"
+                               name="{{participante.id}}+1">
+                    </td>
+                </tr>
+            </div>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="buttonConfirm">
+
+        <a href="{% url 'diario' %}" >
+            <input type="button" value="Confirmar " style="border:0.01em; border-radius:5px; border-style:solid; border-color: #1E98D7; background-color: transparent;">
+        </a>
+    </div>
+
+</main>
+
+</body>
+</html>

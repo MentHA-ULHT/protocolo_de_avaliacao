@@ -1,0 +1,158 @@
+{%  extends 'diario\base.html' %}
+
+
+{% block style %}
+nav a:nth-child(1) {
+color: black;
+font-weight: 600;
+}
+div.voltar{
+  padding-left: 49%;
+}
+{% endblock %}
+
+{% block main %}
+
+    <a href="{% url 'diario' %}">
+        <div style="
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 0;
+        line-height: 0;
+        width: 0;
+        height: 0;
+        border:solid transparent;
+        border-width: 50px;
+        border-bottom-color: #bdbebd;
+        border-top-width:0;
+        float:center">
+        </div>
+    </a>
+        <a style="padding-left: 49%" href="{% url 'participantes' %}">
+            Voltar
+        </a>
+
+
+
+<table border="0" id="q5" style="width:80%;margin-left: auto;
+        margin-right: auto; padding: 15px">
+<!--    sessao-->
+    {% for detalhe in sessao %}
+    <tr>
+        {% if detalhe.nome|length > 0 %}
+
+        <td colspan="8" style="background-color: gray; text-align: center;  padding: 10px;"> {{ detalhe.nome }} </td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td colspan="1" style="background-color: white; text-align: center; padding: 10px;">Tema</td>
+        {% if detalhe.tema|length > 0 %}
+        <td colspan="7" style="background-color: white; text-align: left;  padding: 10px;"> {{ detalhe.tema }} </td>
+            {% else %}
+        <td colspan="7"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}    </tr>
+    <tr>
+        <td colspan="1" style="background-color: white; text-align: center; padding: 10px;">Dinamizadores</th>
+        {% if detalhe.dinamizadores|length > 0 %}
+        <td colspan="7" style="background-color: white; text-align: left; padding: 10px; "> {{ detalhe.dinamizadores }} </td>
+            {% else %}
+        <td colspan="7"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}    </tr>
+    <tr>
+        <td colspan="1" style="background-color: white; text-align: center; padding: 10px;">Componentes</th>
+        {% if detalhe.componentes|length > 0 %}
+        <td colspan="7" style="background-color: white; text-align: left; padding: 10px; "> {{ detalhe.componentes }} </td>
+            {% else %}
+        <td colspan="7"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}    </tr>
+    {% endfor %}
+<!--    seccao objetivos e restante info da sessao-->
+        <tr>
+        <td colspan="1" style="background-color: white; width:250px;"></td>
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">Objetivo(s)</td>
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">Atividade(s)</td>
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">Materiais</td>
+        <td colspan="1"  style="background-color: white; text-align: center; padding: 10px; ">Duração</td>
+    </tr>
+<!--    exercicio -->
+<!--    parte inicial-->
+    {% for detalhe in exercicios %}
+    {% if detalhe.fase == 'I' %}
+        <tr>
+
+        <td colspan="1" style="background-color: white; text-align: center; width:250px;"> Fase Inicial</td>
+            {% if detalhe.objetivo|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.objetivo }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}            {% if detalhe.atividade|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.atividade }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}            {% if detalhe.materiais|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.materiais }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}
+            {% if detalhe.duracao|length > 0 %}
+        <td colspan="1"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.duracao }}</td>
+            {% else %}
+        <td colspan="1"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}    </tr>
+{% endif %}
+<!--    parte desenvolvimento-->
+{% endfor %}
+        {% for detalhe in exercicios %}
+
+    {% if detalhe.fase == 'D' %}
+    <tr>
+        <td colspan="1" style="background-color: white; text-align: center; width:250px;"> Fase Desenvolvimento</td>
+            {% if detalhe.objetivo|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.objetivo }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}            {% if detalhe.atividade|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.atividade }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}            {% if detalhe.materiais|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.materiais }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}
+            {% if detalhe.duracao|length > 0 %}
+        <td colspan="1"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.duracao }}</td>
+            {% else %}
+        <td colspan="1"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}    </tr>
+{% endif %}
+{% endfor %}
+<!--    parte final-->
+        {% for detalhe in exercicios %}
+    {% if detalhe.fase == 'F' %}
+     <tr>
+
+        <td colspan="1" style="background-color: white; text-align: center; width:250px;"> Fase Final</td>
+            {% if detalhe.objetivo|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.objetivo }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}            {% if detalhe.atividade|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.atividade }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}            {% if detalhe.materiais|length > 0 %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.materiais }}</td>
+            {% else %}
+        <td colspan="2"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}
+            {% if detalhe.duracao|length > 0 %}
+        <td colspan="1"  style="background-color: white; text-align: center; padding: 10px; ">{{ detalhe.duracao }}</td>
+            {% else %}
+        <td colspan="1"  style="background-color: white; text-align: center; padding: 10px; "> </td>
+            {% endif %}    </tr>
+{% endif %}
+{% endfor %}
+</table>
+
+{% endblock %}

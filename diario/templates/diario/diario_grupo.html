@@ -1,0 +1,233 @@
+<style>
+table, td, th {
+  border: 1px solid black;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+td {
+  text-align: center;
+}
+th {
+  text-align: center;
+}
+
+
+
+
+
+div.detail-info-container1 > * {
+  padding:10px;
+  margin:5px;
+}
+.detail-info-container1{
+  position:relative;
+}
+.detalhe{
+  background-color: whitesmoke;
+  display:none;
+  position: absolute;
+  z-index:2;
+  width:calc(100% - 10px);
+  top: calc(100%);
+  left:0px;
+  padding:10px 10px 10px 10px;
+}
+.titulo{
+  background-color: transparent;
+  border:0.01em;
+  border-radius:5px;
+  border-style:solid;
+  border-color: #47B5C4;
+}
+
+.selectedButton{
+
+}
+.ignoredButton{
+  display
+}
+
+
+</style>
+
+{% block script %}
+<script>
+
+        function sendInput(id, name, checked) {
+            let data = new FormData();
+            data.append('nome', name);
+            data.append('checked',checked);
+
+            csrfmiddlewaretoken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            data.append('csrfmiddlewaretoken',csrfmiddlewaretoken);
+
+            fetch('user/${id}', {
+                method: "POST",
+                body: data
+                })
+                .then(response => response);
+            return false;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('input').forEach(input => {
+                    input.onchange = () => {
+                        sendInput(input.dataset.id, input.nome, input.checked);
+                    }
+                });
+            });
+
+<!--document.querySelectorAll('div.titulo').forEach(d=>{-->
+
+<!--  d.onclick= function clicar(){-->
+<!--    if(d.nextElementSibling.style.display=='block'){-->
+<!--      d.nextElementSibling.style.display='none'-->
+<!--    }-->
+<!--    else{-->
+<!--       d.nextElementSibling.style.display='block';-->
+
+<!--    }-->
+<!--  };-->
+<!--});-->
+
+function showContent1(element){
+  element.style.display = "block";
+  document.querySelector("#" + element.id + " > .detalhe").style.display="block"
+  console.log(element.id);
+}
+
+function hideContent1(element){
+  document.querySelector("#" + element.id + " > .detalhe").style.display="none"
+}
+
+
+
+</script>
+{% endblock %}
+
+<div id="notas" style="overflow: auto;">
+    <!-- https://code-boxx.com/post-form-data-javascript-fetch/ -->
+
+    <h2><b>Nova nota:</b></h2>
+    <input type="checkbox" id="vehicle" name="escolha" value="atividadde">
+    <label for="vehicle1">Atividade</label>
+    <input type="checkbox" id="vehicle1" name="escolha" value="geral">
+    <label for="vehicle1">Geral</label>
+
+    <form id="notaForm" onsubmit='return sendForm({{ grupo_id }}, "notaForm");' method="post">
+        {% csrf_token %}
+        {{ notaForm.notaGrupo }}
+        <input type="hidden" name="grupo" value={{ grupo_id }}>
+        <button type="submit" name="cancel">Cancelar nota</button>
+        <button type="submit" name="nota">Guardar nota</button>
+
+    </form>
+
+
+    <hr>
+    <h2><b>Lista das notas de grupo {{grupo_id}}</b></h2>
+
+    <ul>
+        {% if notasGrupo|length > 0 %}
+        {% for nota in notasGrupo %}
+        <li>{{ nota }}</li>
+        {% endfor %}
+        {% else %}
+        <li>Sem notas</li>
+        {% endif %}
+    </ul>
+
+</div>
+
+<div id="partilhas">
+    <h1>partilhas do grupo {{ grupo_id }}</h1>
+
+    <form id="partilhaGrupoForm" onsubmit='return sendForm({{ grupo_id }}, "partilhaGrupoForm");' method="post">
+        {% csrf_token %}
+        {{ partilhaGrupoForm.descricao }}
+        <input type="hidden" name="grupo" value={{ grupo_id }}>
+        <button type="submit" name="partilha">Guardar partilha</button>
+    </form>
+
+    <ul>
+        {% if partilhas|length > 0 %}
+        {% for partilha in partilhas %}
+        <li>{{ partilha }} <span class="data">{{ partilha.data }}</span></li>
+        {% endfor %}
+        {% else %}
+        <li>Sem partilhas</li>
+        {% endif %}
+    </ul>
+</div>
+
+<div id="presencas">
+
+    <table border="3" id="q4">
+        <tr>
+            <th rowspan="2">Participantes</th>
+            <th rowspan="2">Online</th>
+            <th rowspan="2">Presencial</th>
+            <th rowspan="2">Nao veio</th>
+            <th colspan="2">Modo de resposta</th>
+        </tr>
+        <tr>
+            <th>Caderno</th>
+            <th>App</th>
+        </tr>
+        {% for participante in participantes %}
+        <div>
+            <tr>
+                <td>{{participante}}</td>
+                <td>
+                    <input type="radio" data-participante="{{participante.id}}" value="online"
+                           name="{{participante.id}}" {% if participante.online %} checked {% endif %}>
+                </td>
+                <td>
+                    <input type="radio" data-participante="{{participante.id}}" value="presencial"
+                           name="{{participante.id}}" {% if participante.presencial %} checked {% endif %}>
+                </td>
+                <td>
+                    <input type="radio" data-participante="{{participante.id}}" value="naoVeio"
+                           name="{{participante.id}}" {% if participante.naoVeio %} checked {% endif %}>
+                </td>
+                <td>
+                    <input type="radio" data-participante="{{participante.id}}" value="caderno"
+                           name="{{participante.id}}+1">
+                </td>
+                <td>
+                    <input type="radio" data-participante="{{participante.id}}" value="app"
+                           name="{{participante.id}}+1">
+                </td>
+            </tr>
+        </div>
+        {% endfor %}
+    </table>
+
+</div>
+
+<div id="informacoes">
+
+    <div class="detail-info-container1" id="information-container" onmouseover="showContent1(this)"
+         onmouseout="hideContent1(this)">
+        <div class="titulo">Informação</div>
+        <div class="detalhe">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+            ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+            dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+            deserunt mollit anim id est laborum.
+        </div>
+    </div>
+
+
+</div>
+
+<!-- As respostas nao fazem parte do grupo -->
+<div id="respostas">
+
+    <h1>Respostas do grupo {{ grupo_id }}</h1>
+
+
+</div>
