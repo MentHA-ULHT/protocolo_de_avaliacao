@@ -492,10 +492,15 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         elif question.name == "Relação com o Avaliador" or question.name == "Cooperação dada na entrevista":
             return redirect('areas',
                             protocol_id=protocol_id, part_id=part_id, patient_id=patient_id)
-        elif question.section.dimension.name == "None":
+        elif question.section.dimension.name == "None" and question.section.name == "None":
             return redirect('instruments',
                             protocol_id=protocol_id, part_id=part_id,
                             area_id=area_id, patient_id=patient_id)
+        elif question.section.dimension.name == "None" and question.section.name != "None":
+            return redirect('sections',
+                            protocol_id=protocol_id, part_id=part_id,
+                            area_id=area_id, instrument_id=instrument_id, dimension_id=dimension_id,
+                            patient_id=patient_id)
         elif question.section.name == "None" or question.question_type == 9 or question.section.dimension.number_of_questions == 1:
             return redirect('dimensions',
                             protocol_id=protocol_id, part_id=part_id,
