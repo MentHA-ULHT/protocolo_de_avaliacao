@@ -117,7 +117,7 @@ def bsi_quotation(a):
 
 def make_graph(names, quotations, min, max):
     tick = 0
-    if max < 10:
+    if max <= 10:
         tick = 1
     else:
         tick = 5
@@ -140,7 +140,7 @@ def make_graph(names, quotations, min, max):
                 tick0=0,
                 dtick=tick,
                 visible=True,
-                range = [min, max]
+                #range = [min, max]
                 # https://plotly.com/python/radar-chart/
             ),
         ),
