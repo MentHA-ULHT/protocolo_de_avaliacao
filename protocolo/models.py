@@ -96,10 +96,12 @@ class Area(Common):
 
 
 class Instrument(Common):
-    area = models.ForeignKey('Area', on_delete=models.CASCADE, related_name='instruments')
-
+    area = models.ManyToManyField('Area',
+                                              default=None,
+                                              related_name='instruments',
+                                              blank=True)
     def __str__(self):
-        return f"{self.area.name} >> {self.name}"
+        return f"{self.name}"
 
     @property
     def number_of_dimensions(self):
