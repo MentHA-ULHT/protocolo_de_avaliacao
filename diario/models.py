@@ -158,7 +158,7 @@ class Participante(Utilizador):
         ("5-10", "5-10"),
         ("11+", "11+")
     )
-    escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="0-9", blank=False, null=False)
+    escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=False, null=False)
     diagnosticos = models.ManyToManyField(Doenca, related_name='participantes')
     referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE)
     grupoCog = models.ForeignKey(GrupoCog, on_delete=models.CASCADE, null=True, blank=True, related_name='participantes')
