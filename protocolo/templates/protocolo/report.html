@@ -29,23 +29,59 @@
                                             <!-- Instrumentos -->
                                             {% for instrument_name, dimension in instrument.items %}
                                                 {% if instrument_name != 'None' %}
-                                                <span class="fw-bold">
+                                                    <span class="fw-bold">
                                                 <a href="#" class="jq-btn no-decor"
                                                         {% for i in instruments %}
                                                             {% if i.name == instrument_name %}
-                                                   data-href="{% url 'dimensions' resolution.part.protocol.id resolution.part.id i.area.id i.id resolution.patient.id %}"
+                                                                {% get_area_id i resolution.part as area_id %}
+                                                   data-href="{% url 'dimensions' resolution.part.protocol.id resolution.part.id area_id i.id resolution.patient.id %}"
                                                             {% endif %}
                                                         {% endfor %}
                                                 >{{ instrument_name }}</span>
-                                                <svg style="margin-top: 0px;"
-                                                     xmlns="http://www.w3.org/2000/svg"
-                                                     width="16"
-                                                     height="16" fill="currentColor"
-                                                     class="bi bi-link" viewBox="0 0 16 16">
-                                                    <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
-                                                    <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
-                                                </svg>
-                                                </a>
+                                                    <svg style="margin-top: 0px;"
+                                                         xmlns="http://www.w3.org/2000/svg"
+                                                         width="16"
+                                                         height="16" fill="currentColor"
+                                                         class="bi bi-link" viewBox="0 0 16 16">
+                                                        <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/>
+                                                        <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
+                                                    </svg>
+                                                    </a>
+                                                {% elif instrument_name == 'None' %}
+                                                    {% if area == 'Consciência Humor e Comportamento' %}
+                                                        {% chc_answers answers as exists_chc %}
+                                                        {% if exists_chc %}
+                                                        <ul class="list-group">
+                                                        <li>Consciência: <span
+                                                                class="fw-bold">{% chc_consciencia answers %}</span>
+                                                        </li>
+                                                        <li>Atividade Motora: <span
+                                                                class="fw-bold">{% chc_atividade_motora answers %}</span>
+                                                        </li>
+                                                        <li>Humor: <span
+                                                                class="fw-bold">{% chc_humor answers %}</span>
+                                                        </li>
+                                                        {% endif %}
+                                                    {% elif area == 'Cooperação dada na entrevista' %}
+                                                        {% cde answers as cde_value %}
+                                                        {% if cde_value is None %}
+                                                            {% comment %} Nao faz nada {% endcomment %}
+                                                        {% else %}
+                                                            <ul class="list-group list-unstyled">
+                                                                <li><span class="fw-bold">{{ cde_value }}</span></li>
+                                                            </ul>
+                                                        {% endif %}
+
+                                                    {% elif area == 'Relação com o Avaliador' %}
+                                                        {% rca answers as rca_value %}
+                                                        {% if rca_value is None %}
+                                                           {% comment %} Nao faz nada {% endcomment %}
+                                                        {% else %}
+                                                            <ul class="list-group list-unstyled">
+                                                                <li><span class="fw-bold">{{ rca_value }}</span></li>
+                                                            </ul>
+                                                        {% endif %}
+                                                    {% endif %}
                                                 {% endif %}
                                                 {% exist_answers instrument_name answers as exists %}
                                                 {% if not exists %}
@@ -94,7 +130,12 @@
                                                         <!-- AIVD -->
                                                     {% elif instrument_name == "AIVD" %}
                                                         <br>
-                                                        <span class="badge bg-{% if resolution.patient.sexo == 'Masculino' %}{% if dimension.Total <= 1 %}danger{% elif dimension.Total <= 3 %}warning{% else %}success{% endif %}{% elif resolution.patient.sexo == 'Feminino' %}{% if dimension.Total <= 3 %}danger{% elif dimension.Total <= 5 %}warning{% else %}success{% endif %}{% endif %}">
+                                                        <span class="badge bg-
+
+
+
+
+                                                                {% if resolution.patient.sexo == 'Masculino' %}{% if dimension.Total <= 1 %}danger{% elif dimension.Total <= 3 %}warning{% else %}success{% endif %}{% elif resolution.patient.sexo == 'Feminino' %}{% if dimension.Total <= 3 %}danger{% elif dimension.Total <= 5 %}warning{% else %}success{% endif %}{% endif %}">
                                                              Grau de Dependência {% aivd_evaluation dimension.Total resolution.patient.sexo %}
                                                         </span>
                                                         <!-- BSI -->
@@ -128,6 +169,25 @@
                                                                     class="fw-bold">{% bsi_psicoticismo_quotation answers %}</span>
                                                             </li>
                                                         </ul>
+                                                        <!-- NEO-FFI 20 -->
+                                                    {% elif instrument_name == "NEO-FFI 20" %}
+                                                        <ul class="list-group">
+                                                            <li>Neuroticismo: <span
+                                                                    class="fw-bold">{% neoffi20_neuroticismo answers %}</span>
+                                                            </li>
+                                                            <li>Extroversão: <span
+                                                                    class="fw-bold">{% neoffi20_extroversao answers %}</span>
+                                                            </li>
+                                                            <li>Abertura à experiência: <span
+                                                                    class="fw-bold">{% neoffi20_experiencia answers %}</span>
+                                                            </li>
+                                                            <li>Amabilidade: <span
+                                                                    class="fw-bold">{% neoffi20_amabilidade answers %}</span>
+                                                            </li>
+                                                            <li>Conscienciosidade: <span
+                                                                    class="fw-bold">{% neoffi20_conscienciosidade answers %}</span>
+                                                            </li>
+                                                        </ul>
                                                         <!-- HADS -->
                                                     {% elif instrument_name == "HADS" %}
                                                         {% hads_a_quotation answers as hads_a_q %}
@@ -145,18 +205,18 @@
                                                         <br>
                                                         <span class="badge bg-primary">{% gds_evaluation answers %}</span>
 
-                                                    <!-- MMSE -->
+                                                        <!-- MMSE -->
                                                     {% elif instrument_name == "MMSE" %}
                                                         <br>
-                                                    {% mmse_evaluation resolution.patient dimension.Total as mmse_eval_bool %}
+                                                        {% mmse_evaluation resolution.patient dimension.Total as mmse_eval_bool %}
                                                         {% if mmse_eval_bool %}
-                                                             <span class="badge bg-danger"> Com Declíneo Cognitivo</span>
+                                                            <span class="badge bg-danger"> Com Declíneo Cognitivo</span>
                                                         {% else %}
                                                             <span class="badge bg-success"> Sem Declíneo Cognitivo</span>
                                                         {% endif %}
-                                                        {% elif instrument_name == "MMSE" %}
+                                                    {% elif instrument_name == "MMSE" %}
                                                         <br>
-                                                    <!-- ACER-R -->
+                                                        <!-- ACER-R -->
                                                     {% elif instrument_name == "ACER-R" %}
                                                         <br>
                                                         {% if dimension.Total > 79 %}
@@ -177,7 +237,7 @@
                                                                     <a href="#" class="jq-btn no-decor"
                                                                             {% for q in questions %}
                                                                                 {% if q.section.dimension.name == dim and instrument_name == q.section.dimension.instrument.name %}
-                                                                                    data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id q.section.dimension.instrument.area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
+                                                                       data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id q.section.dimension.instrument.area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
                                                                                 {% endif %}
                                                                             {% endfor %}> {{ dim }}
                                                                         <svg style="margin-top: 0px;"

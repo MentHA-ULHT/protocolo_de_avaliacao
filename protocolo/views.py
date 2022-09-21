@@ -17,7 +17,6 @@ import pandas as pd
 # Create your views here.
 @login_required(login_url='login')
 def dashboard_view(request):
-
     return render(request, 'protocolo/dashboard.html')
 
 
@@ -55,12 +54,8 @@ def parts_view(request, protocol_id, patient_id):
     # print(answered_list)
     # print(percentage_list)
 
-    context = {
-        'parts': zip(parts, answered_list, percentage_list),
-        'protocol': protocol,
-        'resolutions': resolutions,
-        'patient': patient,
-    }
+    context = {'parts': zip(parts, answered_list, percentage_list), 'protocol': protocol, 'resolutions': resolutions,
+        'patient': patient, }
     return render(request, 'protocolo/parts.html', context)
 
 
@@ -72,7 +67,7 @@ def areas_view(request, protocol_id, part_id, patient_id):
     patient = Participante.objects.get(pk=patient_id)
     rel_q = Question.objects.filter(name="Relação com o Avaliador").get()
     coop_q = Question.objects.filter(name="Cooperação dada na entrevista").get()
-    print(coop_q)
+    # print(coop_q)
 
     # ESTOU A CRIAR A RESOLUÇAO AQUI, MAS DEPOIS MUDAR DE SITIO
     r = None
@@ -95,15 +90,8 @@ def areas_view(request, protocol_id, part_id, patient_id):
             answered_list.append(s.get(f'{area.id}').get('answered'))
             percentage_list.append(s.get(f'{area.id}').get('percentage'))
 
-    context = {
-        'areas': zip(areas, answered_list, percentage_list),
-        'part': part,
-        'protocol': protocol,
-        'resolution': r.id,
-        'patient': patient,
-        'coop': coop_q,
-        'rel': rel_q,
-    }
+    context = {'areas': zip(areas, answered_list, percentage_list), 'part': part, 'protocol': protocol,
+        'resolution': r.id, 'patient': patient, 'coop': coop_q, 'rel': rel_q, }
     return render(request, 'protocolo/areas.html', context)
 
 
@@ -131,14 +119,9 @@ def instruments_view(request, protocol_id, part_id, area_id, patient_id):
     # print(answered_list)
     # print(percentage_list)
 
-    context = {
-        'area': area,
-        'part': part,
-        'protocol': protocol,
-        'instruments': zip(instruments, answered_list, percentage_list, quotation_list),
-        'resolution': r.id,
-        'patient': patient,
-    }
+    context = {'area': area, 'part': part, 'protocol': protocol,
+        'instruments': zip(instruments, answered_list, percentage_list, quotation_list), 'resolution': r.id,
+        'patient': patient, }
 
     return render(request, 'protocolo/instruments.html', context)
 
@@ -172,15 +155,9 @@ def dimensions_view(request, protocol_id, part_id, area_id, instrument_id, patie
     # print(answered_list)
     # print(percentage_list)
 
-    context = {
-        'area': area,
-        'part': part,
-        'protocol': protocol,
-        'instrument': instrument,
-        'dimensions': zip(dimensions, answered_list, percentage_list, quotation_list),
-        'resolution': r.id,
-        'patient': patient,
-    }
+    context = {'area': area, 'part': part, 'protocol': protocol, 'instrument': instrument,
+        'dimensions': zip(dimensions, answered_list, percentage_list, quotation_list), 'resolution': r.id,
+        'patient': patient, }
     return render(request, 'protocolo/dimensions.html', context)
 
 
@@ -222,16 +199,9 @@ def sections_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     if len(sections) == 1:
         return redirect(question_view)
 
-    context = {
-        'area': area,
-        'part': part,
-        'protocol': protocol,
-        'instrument': instrument,
-        'dimension': dimension,
-        'sections': zip(sections, answered_list, percentage_list, quotation_list),
-        'resolution': r.id,
-        'patient': patient,
-    }
+    context = {'area': area, 'part': part, 'protocol': protocol, 'instrument': instrument, 'dimension': dimension,
+        'sections': zip(sections, answered_list, percentage_list, quotation_list), 'resolution': r.id,
+        'patient': patient, }
 
     # print(instrument.number_of_dimensions)
 
@@ -253,19 +223,9 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
     answers = Answer.objects.filter(resolution=r)
     # print(question.section.number_of_questions)
     # print(question.section.dimension.number_of_questions)
-    context = {
-        'area': area,
-        'part': part,
-        'protocol': protocol,
-        'instrument': instrument,
-        'dimension': dimension,
-        'section': section,
-        'question': question,
-        'form': form,
-        'resolution': r.id,
-        'answers': answers,
-        'patient': patient,
-    }
+    context = {'area': area, 'part': part, 'protocol': protocol, 'instrument': instrument, 'dimension': dimension,
+        'section': section, 'question': question, 'form': form, 'resolution': r.id, 'answers': answers,
+        'patient': patient, }
     # print(answers)
 
     if question.question_type == 3:
@@ -282,12 +242,14 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
         # Outro que as respostas são diferentes e mostrará varias perguntas individualmente, todas na mesma página
         ans = 0
         equal = True
+        qset = []
         for question in Question.objects.filter(section=section.id):
             if ans == 0:
-                ans = question.possible_answers.all()
-                # print(ans)
+                ans = 1
+                qset = question.possible_answer_name_list  # print(qset)
             else:
-                equal = set(question.possible_answers.all()) == set(ans)
+                # print(f"{question.possible_answer_name_list} vs {qset}")
+                equal = question.possible_answer_name_list == qset
 
         context['equal_answers'] = equal
         context['question_list'] = question_list
@@ -323,12 +285,10 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
 
         if question.question_type == 1 or question.question_type == 9:
             id_answer = request.POST.get("choice")
-            r = Resolution.objects.get(part=part,
-                                       patient=patient, doctor=request.user)
+            r = Resolution.objects.get(part=part, patient=patient, doctor=request.user)
             if existing_answer is None:
                 # cria uma nova associação
-                new_answer = Answer(question=question,
-                                    multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer),
+                new_answer = Answer(question=question, multiple_choice_answer=PossibleAnswer.objects.get(pk=id_answer),
                                     resolution=r)
                 quotation = new_answer.multiple_choice_answer.quotation
                 new_answer.quotation = quotation
@@ -336,8 +296,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 new_answer.save()
                 r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
                                        f'{section_id}')
-                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}', quotation)
+                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}', quotation)
             else:
                 # modifica a associação existente
                 existing_answer.multiple_choice_answer = PossibleAnswer.objects.get(pk=id_answer)
@@ -345,8 +304,7 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                 existing_answer.quotation = quotation
                 existing_answer.notes = request.POST.get('notes')
                 existing_answer.save()
-                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}', quotation)
+                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}', quotation)
 
 
         elif question.question_type == 2:
@@ -374,8 +332,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                     existing_answer.notes = new_answer.notes
                     existing_answer.save()
 
-                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}', new_answer.quotation)
+                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}',
+                                   new_answer.quotation)
 
         elif question.question_type == 3:
             for key in request.POST:
@@ -392,8 +350,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                         a.quotation = quotation
                         a.notes = request.POST.get('notes')
                         a.save()
-                        r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                           f'{section_id}', quotation)
+                        r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}',
+                                           quotation)
                     else:
                         a = Answer()
                         a.resolution = r
@@ -405,8 +363,8 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
                         a.save()
                         r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
                                                f'{section_id}')
-                        r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                           f'{section_id}', quotation)
+                        r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}',
+                                           quotation)
 
         elif question.question_type == 4 or question.question_type == 6 or question.question_type == 7 or question.question_type == 8:
             existing = False
@@ -441,13 +399,11 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             a.save()
 
             if existing:
-                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}', q)
+                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}', q)
             else:
                 r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
                                        f'{section_id}')
-                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}', q)
+                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}', q)
 
         elif question.question_type == 5:
             # print(request.POST)
@@ -478,41 +434,28 @@ def question_view(request, protocol_id, part_id, area_id, instrument_id, dimensi
             a.save()
 
             if existing:
-                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}', q)
+                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}', q)
             else:
                 r.increment_statistics(f'{part_id}', f'{area_id}', f'{instrument_id}', f'{dimension_id}',
                                        f'{section_id}')
-                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}',
-                                   f'{section_id}', q)
-        #print(question.section.dimension.number_of_questions)
+                r.change_quotation(f'{area_id}', f'{instrument_id}', f'{dimension_id}', f'{section_id}', q)
+        # print(question.section.dimension.number_of_questions)
         if question.question_type == 3:
-            return redirect('instruments',
-                            protocol_id=protocol_id, part_id=part_id,
-                            area_id=area_id, patient_id=patient_id)
+            return redirect('instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+                            patient_id=patient_id)
         elif question.name == "Relação com o Avaliador" or question.name == "Cooperação dada na entrevista":
-            return redirect('areas',
-                            protocol_id=protocol_id, part_id=part_id, patient_id=patient_id)
+            return redirect('areas', protocol_id=protocol_id, part_id=part_id, patient_id=patient_id)
         elif question.section.dimension.name == "None":
-            return redirect('instruments',
-                            protocol_id=protocol_id, part_id=part_id,
-                            area_id=area_id, patient_id=patient_id)
+            return redirect('instruments', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+                            patient_id=patient_id)
         elif question.section.name == "None" or question.question_type == 9 or question.section.dimension.number_of_questions == 1:
-            return redirect('dimensions',
-                            protocol_id=protocol_id, part_id=part_id,
-                            area_id=area_id, instrument_id=instrument_id, patient_id=patient_id)
+            return redirect('dimensions', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+                            instrument_id=instrument_id, patient_id=patient_id)
         else:
-            return redirect('sections',
-                            protocol_id=protocol_id, part_id=part_id,
-                            area_id=area_id, instrument_id=instrument_id, dimension_id=dimension_id, patient_id=patient_id)
-
-
-
+            return redirect('sections', protocol_id=protocol_id, part_id=part_id, area_id=area_id,
+                            instrument_id=instrument_id, dimension_id=dimension_id, patient_id=patient_id)
 
     return render(request, 'protocolo/question.html', context)
-
-
-
 
 
 @login_required(login_url='login')
@@ -567,29 +510,26 @@ def report_view(request, resolution_id):
                     names) and section.name != 'None' and len(quotations) != 0:
                 for answer in answers:
                     if answer.instrument == instrument.name and instrument.name not in done:
-                        report[area.name][instrument.name]["Graph"] = make_graph(names,quotations, instrument.minimum_quotation, instrument.maximum_quotation)
+                        report[area.name][instrument.name]["Graph"] = make_graph(names, quotations,
+                                                                                 instrument.minimum_quotation,
+                                                                                 instrument.maximum_quotation)
                         done.append(instrument.name)
 
         for instrument in instruments:
             if instrument.name == "BSI":
                 for answer in answers:
                     if answer.instrument == instrument.name:
-                        names = ['Somatização', 'Obsessões-Compulsões', 'Depressão', 'Sensibilidade Interpessoal', 'Ansiedade',
-                                 'Hostilidade', 'Ansiedade Fóbica', 'Ideação Paranóide', 'Psicotismo']
+                        names = ['Somatização', 'Obsessões-Compulsões', 'Depressão', 'Sensibilidade Interpessoal',
+                                 'Ansiedade', 'Hostilidade', 'Ansiedade Fóbica', 'Ideação Paranóide', 'Psicotismo']
                         quotations = bsi_quotation(answers)
                         report[area.name]["BSI"]["Graph"] = make_graph(names, quotations, 0, 28)
                         done.append(instrument.name)
 
     # print(json.dumps(report_json, indent=1, sort_keys=False, ensure_ascii=False))
     # Funcionalidade
-    context = {'report_json': report_json,
-               'report_json_dumps': report_json_dumps,
-               'report': report,
-               'resolution': r,
-               'answers': answers,
-               'instruments': Instrument.objects.all(),
-               'questions': Question.objects.all(),}
-    print(Question.objects.all())
+    context = {'report_json': report_json, 'report_json_dumps': report_json_dumps, 'report': report, 'resolution': r,
+               'answers': answers, 'instruments': Instrument.objects.all(), 'questions': Question.objects.all(), }
+    # print(Question.objects.all())
 
     return render(request, 'protocolo/report.html', context)
 
@@ -601,9 +541,7 @@ def protocol_participants_view(request, protocol_id):
     participants = Participante.objects.filter(avaliador=doctor)
     resolutions = Resolution.objects.filter(doctor=doctor)
 
-    context = {'participants': participants,
-               'resolutions': resolutions,
-               'protocolo': protocolo}
+    context = {'participants': participants, 'resolutions': resolutions, 'protocolo': protocolo}
     return render(request, 'protocolo/protocol-participants.html', context)
 
 
@@ -613,8 +551,7 @@ def participants_view(request):
     participants = Participante.objects.filter(avaliador=doctor)
     resolutions = Resolution.objects.filter(doctor=doctor)
 
-    context = {'participants': participants,
-               'resolutions': resolutions}
+    context = {'participants': participants, 'resolutions': resolutions}
     return render(request, 'protocolo/participants.html', context)
 
 
@@ -641,7 +578,7 @@ def logout_view(request):
 
 
 def profile_view(request, participant_id):
-    #Falta mostrar as resoluções das partes feitas no perfil e os seus relatorios
+    # Falta mostrar as resoluções das partes feitas no perfil e os seus relatorios
     p = Participante.objects.filter(pk=participant_id).get()
     resolutions = Resolution.objects.filter(patient=p)
     c = []
@@ -653,9 +590,5 @@ def profile_view(request, participant_id):
     cuidadores = ", ".join(c)
 
     # print(cuidadores)
-    context = {
-        'p': p,
-        'cuidadores': cuidadores,
-        'resolutions': resolutions,
-    }
+    context = {'p': p, 'cuidadores': cuidadores, 'resolutions': resolutions, }
     return render(request, 'protocolo/profile.html', context)

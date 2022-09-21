@@ -115,6 +115,46 @@ def bsi_quotation(a):
             bsi_sens_interp_quotation(a),bsi_ansiedade_quotation(a),bsi_hostilidade_quotation(a),
             bsi_ansiedade_fob_quotation(a),bsi_ideacao_paranoide_quotation(a),bsi_psicoticismo_quotation(a)]
 
+def neoffi20_neuroticismo(answers):
+    q = 0
+    for a in answers:
+        if a.instrument == 'NEO-FFI 20':
+            if a.question.order in [1,6,11,16]:
+                q = q + a.multiple_choice_answer.quotation
+    return q
+
+def neoffi20_extroversao(answers):
+    q = 0
+    for a in answers:
+        if a.instrument == 'NEO-FFI 20':
+            if a.question.order in [2,7,12,17]:
+                q = q + a.multiple_choice_answer.quotation
+    return q
+
+def neoffi20_experiencia(answers):
+    q = 0
+    for a in answers:
+        if a.instrument == 'NEO-FFI 20':
+            if a.question.order in [3,8,13,18]:
+                q = q + a.multiple_choice_answer.quotation
+    return q
+
+def neoffi20_amabilidade(answers):
+    q = 0
+    for a in answers:
+        if a.instrument == 'NEO-FFI 20':
+            if a.question.order in [4,9,14,19]:
+                q = q + a.multiple_choice_answer.quotation
+    return q
+
+def neoffi20_conscienciosidade(answers):
+    q = 0
+    for a in answers:
+        if a.instrument == 'NEO-FFI 20':
+            if a.question.order in [5,10,15,20]:
+                q = q + a.multiple_choice_answer.quotation
+    return q
+
 def make_graph(names, quotations, min, max):
     tick = 0
     if max < 10:

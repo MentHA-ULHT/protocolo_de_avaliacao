@@ -230,6 +230,13 @@ class Question(Common):
     pdf_page = models.IntegerField(default=0)
 
     @property
+    def possible_answer_name_list(self):
+        qset = []
+        for q in self.possible_answers.all():
+            qset.append(q.name)
+        return qset
+
+    @property
     def allow_submission(self):
         if len(self.possible_answers) <= 0:
             return True
@@ -448,6 +455,10 @@ class Answer(models.Model):
     @property
     def instrument(self):
         return self.question.section.dimension.instrument.name
+
+    @property
+    def instrument_obj(self):
+        return self.question.section.dimension.instrument
 
 class TextInputAnswer(models.Model):
     # class para inputs
