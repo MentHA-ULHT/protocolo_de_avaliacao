@@ -133,7 +133,6 @@ MEDIA_URL = "/media/"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #Markdownify
-
 MARKDOWNIFY_STRIP = False
 MARKDOWNIFY = {
    "default": {
@@ -144,11 +143,18 @@ MARKDOWNIFY = {
         'ul', 'li', 'ol',
         'p',
         'h1', 'h2', 'h3', 'h4',
-      ]
+          'table',
+          'thead',
+          'tbody',
+          'th',
+          'tr',
+          'td',
+      ],
+"MARKDOWN_EXTENSIONS": ["markdown.extensions.fenced_code", "markdown.extensions.extra",]
    },
 
    "alternative": {
       "WHITELIST_TAGS": ["a", "p"],
-      "MARKDOWN_EXTENSIONS": ["markdown.extensions.fenced_code", ]
+      "MARKDOWN_EXTENSIONS": ["markdown.extensions.fenced_code", "markdown.extensions.extra",]
    }
 }

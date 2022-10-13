@@ -2,6 +2,7 @@
     flex: 1 1 0px;
 }
 
+
 .tree-quotation{
     color:rgb(78,115,223);
 }
@@ -10,11 +11,16 @@
     padding-top: 25px;
 }
 
-.flex-header{
-    display:flex;
+.card-header{
+     height: 4em!important;
+}
+.flex-header {
+    display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
+    align-content: center;
+    align-items: center;
 }
 
 .img-preview {
@@ -127,9 +133,6 @@
     writing-mode: vertical-rl;
 }
 
-.breadcrumb {
-    margin-bottom: 1rem;
-}
 
 .standard-text{
     font-weight: normal;
@@ -137,9 +140,6 @@
 }
 
 
-.breadcrumb-item + .breadcrumb-item::before {
-    content: ">";
-}
 
 .no-decor {
     color: #757a9c;
@@ -176,4 +176,64 @@
 
 .modebar{
       display: none !important;
+}
+
+.table-hover-light tbody tr:hover td  {
+  background-color: rgb(246, 247, 255);
+    font-weight: bold;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+}
+
+.breadcrumb-item+.breadcrumb-item {
+    padding-left: 0.5rem!important;
+    padding-top: 0.2em!important;
+}
+
+
+.breadcrumb{
+    margin-top: 0.9em;
+}
+.breadcrumb > a{
+    font-size: 9px;
+    align-items: center;
+    padding-left: -30px !important;
+}
+
+.breadcrumb *:nth-child(1) a{
+    font-weight: bold;
+    font-size: 20px;
+    --bs-text-opacity: 1;
+    color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;
+}
+
+.breadcrumb *:last-child a{
+    font-weight: bold;
+}
+
+.instrument-tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted #1103ff;
+}
+
+.instrument-tooltip .tooltiptext {
+  visibility: hidden;
+  min-width: 250px;
+  max-width: 525px;
+  background-color: #252525;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.instrument-tooltip:hover .tooltiptext {
+  visibility: visible;
 }

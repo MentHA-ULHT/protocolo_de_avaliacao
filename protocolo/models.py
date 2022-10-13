@@ -46,6 +46,10 @@ class Part(Common):
         return f"{self.name}"
 
     @property
+    def area(self):
+        return Area.objects.filter(part=self)
+
+    @property
     def number_of_areas(self):
         return len(Area.objects.filter(part=self))
 
@@ -94,12 +98,15 @@ class Area(Common):
         return Instrument.objects.filter(area=self).get()
 
 
-
 class Instrument(Common):
     area = models.ManyToManyField('Area',
-                                              default=None,
-                                              related_name='instruments',
-                                              blank=True)
+                                  default=None,
+                                  related_name='instruments',
+                                  blank=True)
+    tooltip = models.TextField(max_length=3500,
+                               blank=True,
+                               default="")
+
     def __str__(self):
         return f"{self.name}"
 
@@ -119,21 +126,36 @@ class Instrument(Common):
         return count
 
     @property
-    def maximum_quotation(self):
-        questions = Question.objects.all()
+    def highest_max_quotation(self):
         max_q = 0
-        dimensions = Dimension.objects.filter(instrument=self)
-        sections = []
-        for sec in Section.objects.all():
-            if sec.dimension in dimensions:
-                sections.append(sec)
-
-        for q in questions:
-            if q.section in sections:
-                if max_q < q.quotation_max:
-                    max_q = q.quotation_max
+        for dimension in self.dimension_set.all():
+            dim_sum = 0
+            for section in dimension.section_set.all():
+                for question in section.question_set.all():
+                    dim_sum += question.quotation_max
+            if max_q < dim_sum:
+                max_q = dim_sum
 
         return max_q
+
+    @property
+    def get_pdf_page(self):
+        return self.dimension_set.all()[0].section_set.all()[0].question_set.all()[0].pdf_page
+        for dimension in self.dimension_set.all():
+            for section in dimension.section_set.all():
+                for question in section.question_set.all():
+                    return question.pdf_page
+
+
+        return max_q
+    @property
+    def maximum_quotation(self):
+        total = 0
+        for dimension in self.dimension_set.all():
+            for section in dimension.section_set.all():
+                for question in section.question_set.all():
+                    total += question.quotation_max
+        return total
 
     @property
     def minimum_quotation(self):
@@ -151,6 +173,7 @@ class Instrument(Common):
                     min_q = q.quotation_max
 
         return min_q
+
 
 class Dimension(Common):
     instrument = models.ForeignKey('Instrument', on_delete=models.CASCADE)
@@ -170,18 +193,16 @@ class Dimension(Common):
 
     @property
     def maximum_quotation(self):
-        questions = Question.objects.all()
-        sections = Section.objects.filter(dimension=self)
         max_q = 0
-
-        for q in questions:
-            if q.section in sections:
-                max_q = max_q + q.quotation_max
+        for section in self.section_set.all():
+            for question in section.question_set.all():
+                max_q += question.quotation_max
 
         return max_q
 
-    def __str__(self):
-        return f"{self.instrument.name} >> {self.name}"
+
+def __str__(self):
+    return f"{self.instrument.name} >> {self.name}"
 
 
 class Section(Common):
@@ -193,12 +214,9 @@ class Section(Common):
 
     @property
     def maximum_quotation(self):
-        questions = Question.objects.all()
         max_q = 0
-
-        for q in questions:
-            if q.section == self :
-                max_q = max_q + q.quotation_max
+        for question in self.question_set.all():
+            max_q += question.quotation_max
 
         return max_q
 
@@ -207,12 +225,12 @@ class Section(Common):
 
 
 class Question(Common):
-    #1 = Multiple Choice, 2 = Escrita aberta ou submissão, 3 = Tabela de escolhas multiplas (p. ex. Psicossintomatologia BSI)
-    #4 = Checkboxes, 5 = Multiplas text areas com cronómetro, 6 = Nomeação de Imagens, 7= Memoria (Reconhecimento),
-    #8 = GDS Questionário, #9 GDS atribuir estadio
+    # 1 = Multiple Choice, 2 = Escrita aberta ou submissão, 3 = Tabela de escolhas multiplas (p. ex. Psicossintomatologia BSI)
+    # 4 = Checkboxes, 5 = Multiplas text areas com cronómetro, 6 = Nomeação de Imagens, 7= Memoria (Reconhecimento),
+    # 8 = GDS Questionário, 9 GDS atribuir estadio, 10 = Trail Maker Test, 11 = Sociodemografico
     question_type = models.PositiveIntegerField(default=1,
-                                        blank=False,
-                                        validators=[MinValueValidator(1), MaxValueValidator(9)])
+                                                blank=False,
+                                                validators=[MinValueValidator(1), MaxValueValidator(11)])
     instruction = models.TextField(max_length=LONG_LEN,
                                    blank=True)
     helping_images = models.ManyToManyField('QuestionImage',
@@ -250,7 +268,6 @@ class Question(Common):
         return f"{self.name}"
 
 
-
 class QuestionImage(models.Model):
     name = models.CharField(max_length=MEDIUM_LEN)
     description = models.CharField(max_length=LONG_LEN,
@@ -279,7 +296,7 @@ class Resolution(models.Model):
     part = models.ForeignKey('Part', on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
     doctor = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                on_delete=models.CASCADE, default=None, blank=True, null=True)
+                               on_delete=models.CASCADE, default=None, blank=True, null=True)
     statistics = models.JSONField(blank=True, default=dict)
 
     def __str__(self):
@@ -289,34 +306,34 @@ class Resolution(models.Model):
     def initialize_statistics(self):
         self.statistics['total_answered'] = 0
         self.statistics['total_percentage'] = 0
-        areas = Area.objects.filter(part=self.part)
+        areas = Area.objects.all().order_by('order').filter(part=self.part)
         for area in areas:
             self.statistics[area.id] = {}
             self.statistics[area.id]['name'] = area.name
             self.statistics[area.id]['answered'] = 0
             self.statistics[area.id]['percentage'] = 0
-            instruments = Instrument.objects.filter(area=area)
+            instruments = Instrument.objects.all().order_by('order').filter(area=area)
             for instrument in instruments:
                 self.statistics[area.id][instrument.id] = {}
                 self.statistics[area.id][instrument.id]['name'] = instrument.name
                 self.statistics[area.id][instrument.id]['answered'] = 0
                 self.statistics[area.id][instrument.id]['percentage'] = 0
                 self.statistics[area.id][instrument.id]['quotation'] = 0
-                dimensions = Dimension.objects.filter(instrument=instrument)
+                dimensions = Dimension.objects.all().order_by('order').filter(instrument=instrument)
                 for dimension in dimensions:
                     self.statistics[area.id][instrument.id][dimension.id] = {}
                     self.statistics[area.id][instrument.id][dimension.id]['name'] = dimension.name
                     self.statistics[area.id][instrument.id][dimension.id]['answered'] = 0
                     self.statistics[area.id][instrument.id][dimension.id]['percentage'] = 0
                     self.statistics[area.id][instrument.id][dimension.id]['quotation'] = 0
-                    sections = Section.objects.filter(dimension=dimension)
+                    sections = Section.objects.all().order_by('order').filter(dimension=dimension)
                     for section in sections:
                         self.statistics[area.id][instrument.id][dimension.id][section.id] = {}
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['name'] = section.name
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['answered'] = 0
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['percentage'] = 0
                         self.statistics[area.id][instrument.id][dimension.id][section.id]['quotation'] = 0
-                        questions = Question.objects.filter(section=section)
+                        #questions = Question.objects.filter(section=section)
                         # for question in questions:
                         #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id] = {}
                         #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['name'] = question.name
@@ -325,6 +342,7 @@ class Resolution(models.Model):
                         #    self.statistics[area.id][instrument.id][dimension.id][section.id][question.id]['quotation'] = 0
         self.save()
         # json.dumps(self.statistics)
+
 
     def increment_statistics(self, part_id: int, area_id: int, instrument_id: int, dimension_id: int, section_id: int):
         part = Part.objects.get(pk=part_id)
@@ -350,7 +368,6 @@ class Resolution(models.Model):
         self.statistics[area_id][instrument_id][dimension_id]['percentage'] = \
             percentage(total=dimension.number_of_questions,
                        partial=self.statistics[area_id][instrument_id][dimension_id]['answered'])
-
 
         section = Section.objects.get(pk=section_id)
         self.statistics[area_id][instrument_id][dimension_id][section_id]['answered'] += 1
@@ -429,7 +446,6 @@ class Answer(models.Model):
     notes = models.TextField(max_length=LONG_LEN, blank=True, null=True)
     resolution = models.ForeignKey('Resolution', on_delete=models.CASCADE)
 
-
     @property
     def quotation_max(self):
         return int(self.question.quotation_max)
@@ -460,22 +476,24 @@ class Answer(models.Model):
     def instrument_obj(self):
         return self.question.section.dimension.instrument
 
+
 class TextInputAnswer(models.Model):
     # class para inputs
     # fk para answer
     # related_name para aceder desde a answer
     answer = models.ForeignKey('Answer',
-                                 on_delete=models.CASCADE,related_name='TIAnswer')
+                               on_delete=models.CASCADE, related_name='TIAnswer')
     seconds = models.IntegerField(default=0, null=True, blank=True)
     text = models.TextField(max_length=LONG_LEN, blank=True, null=True)
 
     def __str__(self):
         return f"{self.id}. {self.text}"
 
+
 class MultipleChoicesCheckbox(Common):
-    #class parecida à multiple choices
-    #fk para answer
-    #text field
+    # class parecida à multiple choices
+    # fk para answer
+    # text field
     answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name='MCCAnswer')
     choice = models.ForeignKey('PossibleAnswer', on_delete=models.CASCADE, related_name='CheckBoxChoice')
 

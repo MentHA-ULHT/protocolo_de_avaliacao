@@ -29,4 +29,8 @@ urlpatterns = [
                   path('login', views.login_view, name="login"),
                   path('logout', views.logout_view, name="logout"),
                   path('profile/<int:participant_id>/', views.profile_view, name="participant"),
+                  path('participant-overview/<int:participant_id>/', views.patient_overview_view,
+                       name="participant-overview"),
+                  path('gds-overview/<int:protocol_id>/<int:part_id>/<int:area_id>/<int:instrument_id>/<int:patient_id>', views.gds_overview_view,
+                       name="gds-overview"),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

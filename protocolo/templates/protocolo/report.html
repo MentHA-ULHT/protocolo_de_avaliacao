@@ -1,4 +1,5 @@
 {% load tags %}
+{% load markdownify %}
 <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
@@ -7,37 +8,43 @@
                     <div class="card-header py-3">
                         <p class="text-primary m-0 fw-bold">Relatório {{ resolution.part }} - {{ resolution.patient }}
                             ({{ resolution.date }})</p>
-
+                    </div>
+                <div class="card-body">
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th style="width: 20%;text-align: left;color: var(--bs-blue);">Área de Avaliação
+                                    <th style="width: 20%;text-align: left">Área de Avaliação
                                     </th>
-                                    <th style="width: 35%;text-align: left;color: var(--bs-blue);">Resultados</th>
+                                    <th style="width: 35%;text-align: left;">Resultados</th>
                                     <th style="width: 40%;text-align: left;color: var(--bs-blue);">{% comment %} GRAFICOS {% endcomment %}</th>
                                     <th style="width: 5%;text-align: left;color: var(--bs-blue);"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for area, instrument in report.items %}
+                                {% for area_id, instrument in report.items %}
+                                    {% get_area_from_id areas area_id as area %}
                                     <tr>
                                         <!-- Área de Avaliação -->
-                                        <td>{{ area }}</td>
+                                        <td>{{ area.name }}</td>
                                         <!-- Resultados -->
                                         <td>
                                             <!-- Instrumentos -->
                                             {% for instrument_name, dimension in instrument.items %}
                                                 {% if instrument_name != 'None' %}
-                                                    <span class="fw-bold">
-                                                <a href="#" class="jq-btn no-decor"
-                                                        {% for i in instruments %}
+
+                                                    <span class="fw-bold {% for i in instruments %}{% if i.name == instrument_name and i.tooltip.1%}instrument-tooltip{% endif %}{% endfor %}">
+                                                    {% for i in instruments %}
                                                             {% if i.name == instrument_name %}
-                                                                {% get_area_id i resolution.part as area_id %}
-                                                   data-href="{% url 'dimensions' resolution.part.protocol.id resolution.part.id area_id i.id resolution.patient.id %}"
+                                                <a href="#" class="jq-btn no-decor" data-href="{% url 'dimensions' resolution.part.protocol.id resolution.part.id area_id i.id resolution.patient.id %}">
                                                             {% endif %}
-                                                        {% endfor %}
-                                                >{{ instrument_name }}</span>
+                                                    {% endfor %}
+                                                    {{ instrument_name }}
+                                                    {% for i in instruments %}{% if i.name == instrument_name and i.tooltip.1%}
+                                                        <div class="tooltiptext">
+                                                            {{ i.tooltip|markdownify }}
+                                                        </div>{% endif %}{% endfor %}
+                                                    </span>
                                                     <svg style="margin-top: 0px;"
                                                          xmlns="http://www.w3.org/2000/svg"
                                                          width="16"
@@ -47,6 +54,7 @@
                                                         <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
                                                     </svg>
                                                     </a>
+
                                                 {% elif instrument_name == 'None' %}
                                                     {% if area == 'Consciência Humor e Comportamento' %}
                                                         {% chc_answers answers as exists_chc %}
@@ -103,7 +111,7 @@
                                                                 {% if a.instrument == "PANAS" %}
                                                                     <li>
                                                                         <a href="#"
-                                                                           data-href="{% url 'question' resolution.part.protocol.id resolution.part.id a.question.section.dimension.instrument.area.id a.question.section.dimension.instrument.id a.question.section.dimension.id a.question.section.id resolution.patient.id %}"
+                                                                           data-href="{% url 'question' resolution.part.protocol.id resolution.part.id area_id a.question.section.dimension.instrument.id a.question.section.dimension.id a.question.section.id resolution.patient.id %}"
                                                                            class="jq-btn no-decor">{{ a.question.name }}
                                                                             <svg style="margin-top: 0px;"
                                                                                  xmlns="http://www.w3.org/2000/svg"
@@ -169,6 +177,14 @@
                                                                     class="fw-bold">{% bsi_psicoticismo_quotation answers %}</span>
                                                             </li>
                                                         </ul>
+                                                        <ul class="list-unstyled">
+                                                            <li><span class="badge bg-primary fw-bold">IGS: {% bsi_igs answers %}</span>
+                                                            </li>
+                                                        <li><span class="badge bg-primary fw-bold">TSP: {% bsi_tsp answers %}</span>
+                                                            </li>
+                                                        <li><span class="badge bg-primary fw-bold">ISP: {% bsi_isp answers %}</span>
+                                                            </li>
+                                                        </ul>
                                                         <!-- NEO-FFI 20 -->
                                                     {% elif instrument_name == "NEO-FFI 20" %}
                                                         <ul class="list-group">
@@ -216,8 +232,8 @@
                                                         {% endif %}
                                                     {% elif instrument_name == "MMSE" %}
                                                         <br>
-                                                        <!-- ACER-R -->
-                                                    {% elif instrument_name == "ACER-R" %}
+                                                        <!-- ACE-R -->
+                                                    {% elif instrument_name == "ACE-R" %}
                                                         <br>
                                                         {% if dimension.Total > 79 %}
                                                             <span class="badge bg-success"> Sem Declíneo Cognitivo</span>
@@ -237,7 +253,7 @@
                                                                     <a href="#" class="jq-btn no-decor"
                                                                             {% for q in questions %}
                                                                                 {% if q.section.dimension.name == dim and instrument_name == q.section.dimension.instrument.name %}
-                                                                       data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id q.section.dimension.instrument.area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
+                                                                                        data-href="{% url 'sections' resolution.part.protocol.id resolution.part.id area.id q.section.dimension.instrument.id q.section.dimension.id resolution.patient.id %}"
                                                                                 {% endif %}
                                                                             {% endfor %}> {{ dim }}
                                                                         <svg style="margin-top: 0px;"

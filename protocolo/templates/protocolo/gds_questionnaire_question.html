@@ -160,7 +160,7 @@
                     {% endfor %}
                     <br>
                     Necessitarão de alguma assistência nas
-                    actividades da vida diária:
+                    actividades da vida diária: <br>
                     {% for answer in question.possible_answers.all %}
                         {% if answer.description == '6 - 2' %}
                             <label>
@@ -189,6 +189,7 @@
                             <br>
                         {% endif %}
                     {% endfor %}
+                    <br>
                 É frequente continuarem a ser capazes de distinguir, no meio em que vivem, as pessoas conhecidas das não
                 conhecidas. Ocorrem alterações emocionais e da personalidade. São muito variáveis e incluem:
                 {% for answer in question.possible_answers.all %}

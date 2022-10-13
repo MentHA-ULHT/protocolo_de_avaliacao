@@ -1,4 +1,5 @@
 {% load static %}
+{% load tags %}
 <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
@@ -46,67 +47,167 @@
                                                 <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z"/>
                                             </svg>
                                         </a></td>
-                                        <td style="text-align: center;">{{ p.idade }}</td>
+                                        <td style="text-align: center;">{% calculate_age p.nascimento %}</td>
                                         <td style="text-align: center;">{{ p.sexo }}</td>
                                         <td style="text-align: center;">
-                                            {% for r in resolutions %}
-                                                {% if r.doctor == request.user and r.patient == p and r.part.name == 'Rastreio' %}
-                                                    {% if r.statistics.total_percentage == 100 %}
-                                                        <i class="fa fa-check" style="color: var(--bs-blue);"></i>
-                                                    {% elif r.statistics.total_percentage > 0 %}
-                                                        {{ r.statistics.total_percentage }}%
-                                                    {% endif %}
-                                                {% else %}
-                                                {% endif %}
-                                            {% endfor %}
+                                           {% resolution_filter_get_percentage resolutions 1 p as percentage %}
+                                            {% if percentage > 0 %}
+                                                {% get_part_id_from_resolutions resolutions 1 p as p_id %}
+                                                <a href="#" class="jq-btn no-decor"
+                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                    <p style="margin-top: 10px;">
+                                                    <div class="progress"
+                                                         style="text-align: right;margin-top: 10px;width: 100%">
+                                                        <div class="progress-bar"
+                                                             aria-valuenow="{{ percentage }}"
+                                                             aria-valuemin="0"
+                                                             aria-valuemax="100"
+                                                             style="width: {{ percentage }}%;">
+                                                            {{ percentage }}%
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            {% else %}
+                                                <p style="margin-top: 10px;">
+                                                <div class="progress"
+                                                     style="text-align: right;margin-top: 10px;width: 100%">
+                                                    <div class="progress-bar"
+                                                         aria-valuenow="{{ percentage }}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100"
+                                                         style="width: {{ percentage }}%;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                            {% for r in resolutions %}
-                                                {% if r.doctor == request.user and r.patient == p and r.part.name == 'Pré-Teste' %}
-                                                    {% if r.statistics.total_percentage == 100 %}
-                                                        <i class="fa fa-check" style="color: var(--bs-blue);"></i>
-                                                    {% elif r.statistics.total_percentage > 0 %}
-                                                        {{ r.statistics.total_percentage }}%
-                                                    {% endif %}
-                                                {% else %}
-                                                {% endif %}
-                                            {% endfor %}
+                                           {% resolution_filter_get_percentage resolutions 2 p as percentage %}
+                                            {% if percentage > 0 %}
+                                                {% get_part_id_from_resolutions resolutions 2 p as p_id %}
+                                                <a href="#" class="jq-btn no-decor"
+                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                    <p style="margin-top: 10px;">
+                                                    <div class="progress"
+                                                         style="text-align: right;margin-top: 10px;width: 100%">
+                                                        <div class="progress-bar"
+                                                             aria-valuenow="{{ percentage }}"
+                                                             aria-valuemin="0"
+                                                             aria-valuemax="100"
+                                                             style="width: {{ percentage }}%;">
+                                                            {{ percentage }}%
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            {% else %}
+                                                <p style="margin-top: 10px;">
+                                                <div class="progress"
+                                                     style="text-align: right;margin-top: 10px;width: 100%">
+                                                    <div class="progress-bar"
+                                                         aria-valuenow="{{ percentage }}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100"
+                                                         style="width: {{ percentage }}%;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                            {% for r in resolutions %}
-                                                {% if r.doctor == request.user and r.patient == p and r.part.name == 'Monit I' %}
-                                                    {% if r.statistics.total_percentage == 100 %}
-                                                        <i class="fa fa-check" style="color: var(--bs-blue);"></i>
-                                                    {% elif r.statistics.total_percentage > 0 %}
-                                                        {{ r.statistics.total_percentage }}%
-                                                    {% endif %}
-                                                {% else %}
-                                                {% endif %}
-                                            {% endfor %}
+                                            {% resolution_filter_get_percentage resolutions 3 p as percentage %}
+                                            {% if percentage > 0 %}
+                                                {% get_part_id_from_resolutions resolutions 3 p as p_id %}
+                                                <a href="#" class="jq-btn no-decor"
+                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                    <p style="margin-top: 10px;">
+                                                    <div class="progress"
+                                                         style="text-align: right;margin-top: 10px;width: 100%">
+                                                        <div class="progress-bar"
+                                                             aria-valuenow="{{ percentage }}"
+                                                             aria-valuemin="0"
+                                                             aria-valuemax="100"
+                                                             style="width: {{ percentage }}%;">
+                                                            {{ percentage }}%
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            {% else %}
+                                                <p style="margin-top: 10px;">
+                                                <div class="progress"
+                                                     style="text-align: right;margin-top: 10px;width: 100%">
+                                                    <div class="progress-bar"
+                                                         aria-valuenow="{{ percentage }}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100"
+                                                         style="width: {{ percentage }}%;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                            {% for r in resolutions %}
-                                                {% if r.doctor == request.user and r.patient == p and r.part.name == 'Monit II' %}
-                                                    {% if r.statistics.total_percentage == 100 %}
-                                                        <i class="fa fa-check" style="color: var(--bs-blue);"></i>
-                                                    {% elif r.statistics.total_percentage > 0 %}
-                                                        {{ r.statistics.total_percentage }}%
-                                                    {% endif %}
-                                                {% else %}
-                                                {% endif %}
-                                            {% endfor %}
+                                           {% resolution_filter_get_percentage resolutions 4 p as percentage %}
+                                            {% if percentage > 0 %}
+                                                {% get_part_id_from_resolutions resolutions 4 p as p_id %}
+                                                <a href="#" class="jq-btn no-decor"
+                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                    <p style="margin-top: 10px;">
+                                                    <div class="progress"
+                                                         style="text-align: right;margin-top: 10px;width: 100%">
+                                                        <div class="progress-bar"
+                                                             aria-valuenow="{{ percentage }}"
+                                                             aria-valuemin="0"
+                                                             aria-valuemax="100"
+                                                             style="width: {{ percentage }}%;">
+                                                            {{ percentage }}%
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            {% else %}
+                                                <p style="margin-top: 10px;">
+                                                <div class="progress"
+                                                     style="text-align: right;margin-top: 10px;width: 100%">
+                                                    <div class="progress-bar"
+                                                         aria-valuenow="{{ percentage }}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100"
+                                                         style="width: {{ percentage }}%;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         </td>
                                         <td style="text-align: center;">
-                                            {% for r in resolutions %}
-                                                {% if r.doctor == request.user and r.patient == p and r.part.name == 'Pós-Teste' %}
-                                                    {% if r.statistics.total_percentage == 100 %}
-                                                        <i class="fa fa-check" style="color: var(--bs-blue);"></i>
-                                                    {% elif r.statistics.total_percentage > 0 %}
-                                                        {{ r.statistics.total_percentage }}%
-                                                    {% endif %}
-                                                {% else %}
-                                                {% endif %}
-                                            {% endfor %}
+                                       {% resolution_filter_get_percentage resolutions 5 p as percentage %}
+                                            {% if percentage > 0 %}
+                                                {% get_part_id_from_resolutions resolutions 5 p as p_id %}
+                                                <a href="#" class="jq-btn no-decor"
+                                                   data-href="{% url 'areas' 1 p_id p.id %}">
+                                                    <p style="margin-top: 10px;">
+                                                    <div class="progress"
+                                                         style="text-align: right;margin-top: 10px;width: 100%">
+                                                        <div class="progress-bar"
+                                                             aria-valuenow="{{ percentage }}"
+                                                             aria-valuemin="0"
+                                                             aria-valuemax="100"
+                                                             style="width: {{ percentage }}%;">
+                                                            {{ percentage }}%
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            {% else %}
+                                                <p style="margin-top: 10px;">
+                                                <div class="progress"
+                                                     style="text-align: right;margin-top: 10px;width: 100%">
+                                                    <div class="progress-bar"
+                                                         aria-valuenow="{{ percentage }}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100"
+                                                         style="width: {{ percentage }}%;">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         </td>
                                         <td style="text-align: center">{{ p.referenciacao.reference }}</td>
                                     </tr>

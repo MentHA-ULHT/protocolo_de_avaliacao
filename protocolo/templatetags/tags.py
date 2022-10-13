@@ -1,4 +1,5 @@
 from django import template
+from datetime import date
 
 register = template.Library()
 
@@ -184,6 +185,36 @@ def bsi_psicoticismo_quotation(answers):
                 q = q + a.multiple_choice_answer.quotation
     return q
 
+@register.simple_tag
+def bsi_igs(answers):
+    count = 0
+    sum = 0
+    for a in answers:
+        if a.instrument == 'BSI':
+            count += 1
+            sum += a.quotation
+    return sum/count
+
+@register.simple_tag
+def bsi_tsp(answers):
+    count = 0
+    for a in answers:
+        if a.instrument == 'BSI':
+            if a.quotation > 0:
+                count += 1
+    return count
+
+@register.simple_tag
+def bsi_isp(answers):
+    count = 0
+    sum = 0
+    for a in answers:
+        if a.instrument == 'BSI':
+            if a.quotation > 0:
+                count += 1
+            sum += a.quotation
+    return sum/count
+
 
 @register.simple_tag
 def gds_evaluation(answers):
@@ -261,6 +292,7 @@ def neoffi20_conscienciosidade(answers):
                 q = q + a.multiple_choice_answer.quotation
     return q
 
+
 @register.simple_tag
 def get_area_id(instrument, part):
     for area in instrument.area.all():
@@ -272,8 +304,9 @@ def get_area_id(instrument, part):
 def chc_answers(answers):
     for a in answers:
         if a.instrument == 'None':
-            if a.question.name in ['Consciência','Atividade Motora','Humor']:
+            if a.question.name in ['Consciência', 'Atividade Motora', 'Humor']:
                 return True
+
 
 @register.simple_tag
 def chc_consciencia(answers):
@@ -285,6 +318,7 @@ def chc_consciencia(answers):
                     list.append(mca.choice.name)
     return ", ".join(list)
 
+
 @register.simple_tag
 def chc_atividade_motora(answers):
     list = []
@@ -294,6 +328,7 @@ def chc_atividade_motora(answers):
                 for mca in a.MCCAnswer.all():
                     list.append(mca.choice.name)
     return ", ".join(list)
+
 
 @register.simple_tag
 def chc_humor(answers):
@@ -305,12 +340,14 @@ def chc_humor(answers):
                     list.append(mca.choice.name)
     return ", ".join(list)
 
+
 @register.simple_tag
 def cde(answers):
     for a in answers:
         if a.instrument == 'None':
             if a.question.name == 'Cooperação dada na entrevista':
                 return a.multiple_choice_answer.name
+
 
 @register.simple_tag
 def rca(answers):
@@ -319,6 +356,89 @@ def rca(answers):
             if a.question.name == 'Relação com o Avaliador':
                 return a.multiple_choice_answer.name
 
+
 @register.simple_tag
 def save(x):
     return x
+
+
+@register.simple_tag
+def resolution_filter_get_percentage(resolutions, order, person):
+    r = resolutions.filter(patient=person, part__order=order)
+
+    if len(r) >= 1:
+        return r.get().statistics.get('total_percentage')
+    else:
+        return 0
+
+@register.simple_tag
+def get_part_id_from_resolutions(resolutions, order, person):
+    r = resolutions.filter(patient=person, part__order=order)
+    return r.get().part.id
+
+
+@register.simple_tag
+def truncated_second_word(text, max):
+    t = text.split()
+    final = text
+    if len(t) > 1:
+        word1 = t[0]
+        last_word = t[-1]
+        length_word2 = len(last_word)
+        final = ""
+        if length_word2 - max <= 0:
+            final = word1[0] + "... " + last_word[0:9]
+        elif length_word2 - max > 0:
+            #print(max - length_word2)
+            final = word1[0:abs(max - length_word2)] + "... " + last_word[0:9]
+
+        if length_word2 > 9:
+            final += "..."
+    return final
+@register.simple_tag
+def area_from_question_and_part(q, part):
+    for a in q.section.dimension.instrument.area.all():
+        if a.instrument.area.part == part:
+            return a
+
+@register.simple_tag
+def area_from_instrument_and_part(q, instrument):
+    for a in q.section.dimension.instrument.area.all():
+        if a.instrument == instrument:
+            return a
+
+@register.simple_tag
+def get_area_from_id(areas, id):
+    return areas.get(id=id)
+
+@register.simple_tag
+def get_if_done_from_percentage_list(percentages, order, area):
+    return percentages.get(int(order)).get(area)
+
+@register.simple_tag
+def get_rowspan(rowspans, estadio):
+   e = str(estadio).split(" - ")
+   return rowspans.get(str(e[0])) + 1
+
+
+@register.simple_tag
+def get_from_answers_dict(dict, respondente, pergunta):
+   return dict.get(str(respondente)).get(str(pergunta))
+
+@register.simple_tag
+def get_from_dict(dict, key):
+   return dict.get(key)
+
+@register.simple_tag
+def len_dict(dict, key):
+   return len(dict.get(key))
+
+@register.simple_tag
+def calculate_age(born):
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+
+
+
+

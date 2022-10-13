@@ -70,9 +70,9 @@ class Sessao(Evento):
 
 
 class Doenca(models.Model):
-    doenca = models.CharField(max_length=20, default="")
+    nome = models.CharField(max_length=20, default="")
     def __str__(self):
-        return f'{self.doenca}'
+        return f'{self.nome}'
 
 class Utilizador (models.Model):
     opSexo = (
@@ -153,12 +153,59 @@ class Avaliador(Utilizador):
 
 class Participante(Utilizador):
     opEscolaridade = (
-        ("Analfabeto", "Analfabeto"),
+        ("Analfabeto(a)", "Analfabeto(a)"),
         ("1-4", "1-4"),
         ("5-10", "5-10"),
         ("11+", "11+")
     )
+    opResidencia = (
+        ("Urbana", "Urbana"),
+        ("Rural", "Rural"),
+    )
+    opSituacaoLaboral = (
+        ("Empregado(a)", "Empregado(a)"),
+        ("Desempregado(a)", "Desempregado(a)"),
+        ("Reformado(a)", "Reformado(a)"),
+        ("Doméstica", "Doméstica"),
+        ("Estudante", "Estudante"),
+    )
+    opSituacaoEconomica = (
+        ("Muito satisfatória", "Muito satisfatória"),
+        ("Satisfatória", "Satisfatória"),
+        ("Pouco satisfatória", "Pouco satisfatória"),
+        ("Nada satisfatória", "Nada satisfatória"),
+    )
+    opEstadoCivil = (
+        ("Solteiro(a)", "Solteiro(a)"),
+        ("Casado(a) ou a viver como tal", "Casado(a) ou a viver como tal"),
+        ("Viúvo(a)", "Viúvo(a)"),
+        ("Divorciado(a) ou separado(a)", "Divorciado(a) ou separado(a)"),
+    )
+    opAgregadoFamiliar = (
+        ("Vive sozinho(a)", "Vive sozinho(a)"),
+        ("Vive com o cônjuge", "Vive com o cônjuge"),
+        ("Vive com os filhos", "Vive com os filhos"),
+        ("Vive com terceiros", "Vive com terceiros"),
+        ("Vive com o cônjuge e terceiros", "Vive com o cônjuge e terceiros"),
+        ("Vive com os pais", "Vive com os pais"),
+    )
+    opEstadoSaude = (
+        ("Muito mau", "Muito mau"),
+        ("Mau", "Mau"),
+        ("Nem mau nem bom", "Nem mau nem bom"),
+        ("Bom", "Bom"),
+        ("Muito bom", "Muito bom"),
+    )
     escolaridade = models.CharField(max_length=20, choices=opEscolaridade, default="1-4", blank=False, null=False)
+    residencia = models.CharField(max_length=20, choices=opResidencia, default="Urbana", blank=True, null=True)
+    situacaoLaboral = models.CharField(max_length=20, choices=opSituacaoLaboral, default="Reformado(a)", blank=True, null=True)
+    profissaoPrincipal = models.CharField(max_length=100, default="", blank=True, null=True)
+    situacaoEconomica = models.CharField(max_length=20, choices=opSituacaoEconomica, default="Satisfatória", blank=True, null=True)
+    estadoCivil = models.CharField(max_length=30, choices=opEstadoCivil, default="Solteiro(a)", blank=True, null=True)
+    agregadoFamiliar = models.CharField(max_length=35, choices=opAgregadoFamiliar, default="Vive sozinho(a)", blank=True, null=True)
+    temFilhos = models.BooleanField(default=False, blank= True, null=True)
+    nrFilhos = models.IntegerField(default=0, blank= True, null=True)
+    autoAvaliacaoEstadoSaude = models.CharField(max_length=30, choices=opEstadoSaude, default="Nem mau nem bom", blank=True, null=True)
     diagnosticos = models.ManyToManyField(Doenca, related_name='participantes')
     referenciacao = models.ForeignKey(Reference, on_delete= models.CASCADE)
     grupoCog = models.ForeignKey(GrupoCog, on_delete=models.CASCADE, null=True, blank=True, related_name='participantes')

@@ -3,31 +3,20 @@
 <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
-            <div class="d-sm-flex justify-content-between align-items-center h-auto mb-4">
-                <div class="container-fluid">
-                    <div class="card shadow">
-                        <div class="card-header py-3 flex-header">
-                            {% include 'protocolo/tree.html' %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="container-fluid">
                 <div class="card shadow">
                     <div class="card-header py-3 flex-header">
-                        <p class="text-primary m-0 fw-bold" style="font-size: 20px;">
-                            {% if question.question_type == 3 %}
-                                Pergunta ({{ instrument.name }})
-                            {% else %}
-                                Pergunta ({{ question.name }})
-                            {% endif %}</p>
-                        <h3 class="text-dark mb-0" style="margin: 0px;margin-left: 25px;"></h3><a
-                            class="btn jq-btn btn-primary btn-sm d-none d-sm-inline-block report-button" role="button"
-                            ionclick="on()" href="#"
-                            data-href="{% url 'report' resolution %}"
-                            style="max-width:300px; margin-right: 25px;"><i
-                            class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório</a>
+                    <div class="right">
+                            {% include 'protocolo/tree.html' %}
+                        </div>
+                        <div class="left">
+                            <a class="btn jq-btn btn-primary btn-sm d-none d-sm-inline-block report-button"
+                               role="button"
+                               href="#"
+                               data-href="{% url 'report' resolution %}"
+                               style="max-width:300px; margin-right: 25px;"><i
+                                    class="fas fa-download fa-sm text-white-50"></i>&nbsp;Gerar Relatório</a>
+                        </div>
                     </div>
                     <div class="card-body">
                         {% if question.description %}
@@ -40,8 +29,8 @@
                                 <div class="right">
                                     <a href="{% static 'protocolo/files/MentHA_Manual_Avaliacao_Final.pdf' %}#page={{ question.pdf_page }}"
                                        target="_blank">
-                                        <i style="padding:5px;color: var(--bs-body-color);font-size: 35px;"
-                                           class="fa fa-question"></i>
+                                        <i style="padding:5px;color: var(--bs-warning);font-size: 35px;"
+                                           class="fas fa-info-circle"></i>
                                     </a>
                                 </div>
                             </div>
@@ -76,6 +65,10 @@
                             {% include 'protocolo/gds_questionnaire_question.html' %}
                         {% elif question.question_type == 9 %}
                             {% include 'protocolo/gds_question.html' %}
+                        {% elif question.question_type == 10 %}
+                            {% include 'protocolo/timer_tmt_question.html' %}
+                        {% elif question.question_type == 11 %}
+                            {% include 'protocolo/sociodemographic.html' %}
                         {% endif %}
 
                     </div>
